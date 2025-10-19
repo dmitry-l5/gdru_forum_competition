@@ -1,0 +1,1 @@
+import{ax as o}from"./style-BdH5YM9y.js";function t(e,a){o.call(e,a)}t.prototype=Object.create(o.prototype);t.prototype.constructor=Map;let p=document.getElementById("canvas_app");const r=new t(p,{});r.start();
