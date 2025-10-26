@@ -1,14 +1,18 @@
-import { App } from './js/App';
-import './style.css';
-import CoreAppModule from  './wasm/core_app';
+import { App } from './App'
+import './style.css'
+import { yandexSDKManager } from './YandexSDKManager';
+// import Recast from 'recast-detour';
 
-let canvas = document.getElementById('canvas_app'); 
+// window.recast = await Recast();
+const canvas = document.getElementById('canvas_app');
+const load_screen = document.getElementById('pre_load_screen');
+let ysdk = null;
+let ysdk_manager = null;
+if(import.meta.env.VITE_YSDK){
+  ysdk = await yandexSDKManager.init();
+  ysdk_manager = yandexSDKManager;
+}
 
-CoreAppModule().then(
-    module=>{
-        console.log("WASM Module is ready.");
-        const app = new App(canvas, {
-            wasm_module: module       
-        });
-    }
-).catch(e => console.error("Ошибка при загрузке или инициализации WASM:", e));
+
+
+const app = new App(canvas, {pre_load_screen: load_screen, ysdk_manager: ysdk_manager } );
