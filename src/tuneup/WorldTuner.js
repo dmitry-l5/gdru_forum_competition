@@ -8,7 +8,7 @@ import { MODELS_ID } from "./resource_const";
 export function WorldTuner(app, options) {
     const { inputManager, gameDataManager, resourceLoader } = options;
     World.call(this, app, options);
-    this.gameDataManaget = gameDataManager;
+    this.gameDataManager = gameDataManager;
     this.resourceLoader = resourceLoader;
     this.inputManager = inputManager;
     this.player = null;
@@ -57,6 +57,7 @@ WorldTuner.prototype.loadLevel = async function(levelName, onProgress = null) {
     console.log(`Загрузка уровня (карты): ${levelName}...`);
     await this.loadMap(levelName, onProgress);
     this.player = new Player(this.scene, new Vector3(0, 0, 0), { gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader } );
+    this.playground.instantiatePlayerTeam();
     if(this.playground.cameraMainLocation){ 
         this.app.cameras.setPosition(this.playground.cameraMainLocation.position);
         this.app.cameras.setTarget(Vector3.Zero());

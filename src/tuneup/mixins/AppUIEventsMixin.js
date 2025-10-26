@@ -1,4 +1,5 @@
 import { UI_EVENTS } from "../ui/ui_const";
+import { LAYOUTS_UI } from "../ui_const";
 
 export const AppUIEventsMixin = {};
 
@@ -7,7 +8,8 @@ AppUIEventsMixin.uiEventsInit = function() {
   this.uiEventHandlers = {};
   this.uiEventHandlers[UI_EVENTS.CHANGE_LANG] = this._changeLang.bind(app);
   this.uiEventHandlers[UI_EVENTS.NEW_GAME] = this._newGameRequest;
-  this.uiEventHandlers[UI_EVENTS.TOGGLE_PAUSE] = this._togglePause;
+  // this.uiEventHandlers[UI_EVENTS.TOGGLE_PAUSE] = this._togglePause;
+  this.uiEventHandlers[UI_EVENTS.OPEN_MANAGEMENT_SCREEN] = this._showTeamManagementUI;
 };
 
 AppUIEventsMixin._changeLang = function(detail){
@@ -23,3 +25,6 @@ AppUIEventsMixin._newGameRequest = function(detail){
 AppUIEventsMixin._togglePause = function() {
     this.gameDataManager.setPauseStatus(!this.gameDataManager.isGamePaused()); // gameDataManager - свойство App
 };
+AppUIEventsMixin._showTeamManagementUI = function(){
+  this.ui.showLayout(LAYOUTS_UI.MANAGEMENT, false);
+}

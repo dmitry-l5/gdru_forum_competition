@@ -5,6 +5,7 @@ import { PlaygroundBotBehaviorMixin } from "./tuneup/mixins/PlaygroundBotBehavio
 import { CombatManager } from "./CombatManager";
 import { BEHAVIORS } from "./tuneup/common_const";
 import { PlaygroundActionsMixin } from "./tuneup/mixins/PlaygroundActionsMixin";
+import { TEAM_SLOTS } from "./tuneup/teams_const";
 
 export function Playground(world, options) {
     const { pathfinder, resourceLoader } = options;
@@ -17,13 +18,13 @@ export function Playground(world, options) {
     this.navMeshFloor = [];
     this.asset = null;
     this.navMeshSource = null;
-    this.playerPositions = [];
-    this.spawnPoints = [];
-    this.shootPoints = [];
-    this.triggerPoints = [];
+    // this.playerPositions = [];
+    // this.spawnPoints = [];
+    // this.shootPoints = [];
+    // this.triggerPoints = [];
     this.bots = [];
-    this.neutrals = []; 
-    this.projectiles = [];
+    // this.neutrals = []; 
+    // this.projectiles = [];
     this.isLoaded = false;
 
     Object.assign(this, PlaygroundTagsMixin);
@@ -72,25 +73,35 @@ Playground.prototype.handleSpawnPoints = function(spawn_points){
     });
 }
 
+Playground.prototype.instantiatePlayerTeam = function(options = {}){
+    const {gate = null} = options;
+    const playerData = this.app.gameDataManager.playerStatsManager;
+    const team = playerData.team;
+    this.bots.push(
+        new (team[TEAM_SLOTS.MAIN].type)({"":""})
+    )
+
+}
+
 Playground.prototype.update = function(deltaTime) {
     if(!deltaTime)
         deltaTime = this.app.engine.getDeltaTime() / 1000.0;
-    if (!this.world.player || this.isLoaded === false) return;
-    this.handleSpawnPoints(this.spawnPoints);
+    // if (!this.world.player || this.isLoaded === false) return;
+    // this.handleSpawnPoints(this.spawnPoints);
 
-    const target = this.world.player;
-    // bot.update();
-    this.combatManager.update(deltaTime);
-    this.bots.forEach(bot => {
-        if (bot.inCombat === false){
-            if (bot.seesTarget(target.root.position)) {
-                this.combatManager.addBotToCombat(bot, target);
-            } else {
-                bot.setBehavior(BEHAVIORS.IDLE);
-            }
-        }
-        bot.update(deltaTime);
-    });
+    // const target = this.world.player;
+    // // bot.update();
+    // this.combatManager.update(deltaTime);
+    // this.bots.forEach(bot => {
+    //     if (bot.inCombat === false){
+    //         if (bot.seesTarget(target.root.position)) {
+    //             this.combatManager.addBotToCombat(bot, target);
+    //         } else {
+    //             bot.setBehavior(BEHAVIORS.IDLE);
+    //         }
+    //     }
+    //     bot.update(deltaTime);
+    // });
 };
 
 Playground.prototype.spawnBot = async function(point) {

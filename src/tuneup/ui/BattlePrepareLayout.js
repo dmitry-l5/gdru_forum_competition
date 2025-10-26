@@ -9,7 +9,7 @@ import { TEXT_KEYS } from "../local/keys_const";
 import { LANGS } from "../common_const";
 
 
-export function MainLayout(ADTexture, resourceLoader, polylang, gameData, uiHandler){
+export function BattlePrepareLayout(ADTexture, resourceLoader, polylang, gameData, uiHandler){
     this.gameData = gameData;
     LayoutUI.call(this, ADTexture, resourceLoader, polylang, gameData, uiHandler);
     this.items = {
@@ -18,9 +18,9 @@ export function MainLayout(ADTexture, resourceLoader, polylang, gameData, uiHand
         sound_dis_btn: null,
     }
 }
-MainLayout.prototype = Object.create(LayoutUI.prototype);
-MainLayout.prototype.constructor = MainLayout;
-MainLayout.prototype.create = async function(){
+BattlePrepareLayout.prototype = Object.create(LayoutUI.prototype);
+BattlePrepareLayout.prototype.constructor = BattlePrepareLayout;
+BattlePrepareLayout.prototype.create = async function(){
     this.container.height = '100%';
     this.container.width = '100%';
     this.container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;;
@@ -56,11 +56,11 @@ MainLayout.prototype.create = async function(){
     this.observers.push(observer);
 }
 
-MainLayout.prototype.createStartMenu = function(size = 1){
+BattlePrepareLayout.prototype.createStartMenu = function(size = 1){
     const container = new Container('start_menu');
     container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     container.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-    container.background = 'green';
+    container.background = 'blue';
     container.width = '900px';
     container.height = '900px';
 
@@ -98,15 +98,15 @@ MainLayout.prototype.createStartMenu = function(size = 1){
         );
     });
 
-    container.addControl(new_game_btn);
-    container.addControl(continue_game_btn);
-    container.addControl(change_lang_btn);
+    // container.addControl(new_game_btn);
+    // container.addControl(continue_game_btn);
+    // container.addControl(change_lang_btn);
     container.addControl(text);
     return container;
 }
 
 
-MainLayout.prototype.resize = function(size = 1){
+BattlePrepareLayout.prototype.resize = function(size = 1){
     return;
     this.items.neso_btn.height = `${128*size}px`;
     this.items.neso_btn.width = `${128*size}px`;
@@ -114,7 +114,7 @@ MainLayout.prototype.resize = function(size = 1){
 
 
 
-MainLayout.prototype.update = function(){
+BattlePrepareLayout.prototype.update = function(){
     if( this.items.sound_en_btn )
         this.items.sound_en_btn.isVisible = !this.app.userSoundEnabled;
     if( this.items.sound_dis_btn )

@@ -4,4 +4,5 @@ export const LAYOUTS_UI = {
     CONTROL : 'controls',
     PLAYER_SETUP: 'equipment',
     COMPLETE: 'complete',
+    MANAGEMENT:'team_setup',
 }

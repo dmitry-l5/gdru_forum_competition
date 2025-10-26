@@ -1,4 +1,5 @@
 import { LayoutUI } from "./LayoutUI";
+import { BattlePrepareLayout } from "./tuneup/ui/BattlePrepareLayout";
 import { MainLayout } from "./tuneup/ui/MainLayout";
 import { MapLayout } from "./tuneup/ui/MapLayout";
 import { VirtualControlsLayout } from "./tuneup/ui/VirtualControlsLayout";
@@ -17,7 +18,6 @@ export function AppUI(ADTexture, resourceLoader, polylang, gameDataManager, inpu
     this.layouts ={
         [LAYOUTS_UI.MAIN] : null,
     };
-
     this._setupInputHandlers();
 }
 AppUI.prototype = Object.create(null);
@@ -38,8 +38,8 @@ AppUI.prototype.createUI = function(){
 
     this.layouts[LAYOUTS_UI.MAIN] = new MainLayout(this.ADTexture, resourceLoader, this.polylang, this.gameDataManager, this.app.uiHandler.bind(this.app));
     this.layouts[LAYOUTS_UI.MAIN].create();
-    // this.layouts[LAYOUTS_UI.CONTROL] = new VirtualControlsLayout(this.ADTexture, resourceLoader, this.polylang, this.gameDataManager, this.app.uiHandler.bind(this.app), this.inputManager);
-    // this.layouts[LAYOUTS_UI.CONTROL].create();
+    this.layouts[LAYOUTS_UI.MANAGEMENT] = new BattlePrepareLayout(this.ADTexture, resourceLoader, this.polylang, this.gameDataManager, this.app.uiHandler.bind(this.app), this.inputManager);
+    this.layouts[LAYOUTS_UI.MANAGEMENT].create();
     this.layouts[LAYOUTS_UI.MAP] = new MapLayout(this.ADTexture, resourceLoader, this.polylang, this.gameDataManager, this.app.uiHandler.bind(this.app));
     this.layouts[LAYOUTS_UI.MAP].create();
     // this.layouts[LAYOUTS_UI.MAIN].registerListener( this.app.uiHandler.bind(this.app));

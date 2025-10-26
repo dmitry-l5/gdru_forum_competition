@@ -114,6 +114,18 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     continue_game_btn.width = '500px';
     continue_game_btn.height = '75px';
 
+    const management_btn = Button.CreateImageButton('management_btn', 'management_btn');
+    this.registerText( TEXT_KEYS.CONTINUE_GAME, management_btn.textBlock );
+    management_btn.top = '150px';
+    management_btn.width = '500px';
+    management_btn.height = '75px';
+    management_btn.onPointerClickObservable.add(()=>{
+        this.uiCommandsListener?.(
+            UI_EVENTS.OPEN_MANAGEMENT_SCREEN,
+            {}
+        )
+    });
+
     const change_lang_btn = Button.CreateImageButton('change_lang_btn', 'change_lang_btn');
     change_lang_btn.top = '-200px';
     change_lang_btn.width = '500px';
@@ -136,6 +148,7 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     container.addControl(new_game_btn);
     container.addControl(continue_game_btn);
     container.addControl(change_lang_btn);
+    container.addControl(management_btn);
     container.addControl(text);
     return container;
 }

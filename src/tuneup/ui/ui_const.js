@@ -4,4 +4,5 @@ export const UI_EVENTS = {
     CONTINUE_GAME: 'continue_game',
     SOUND_ENABLE: 'sound_enable',
     SOUND_DISABLE: 'sound_disable',
+    OPEN_MANAGEMENT_SCREEN:'perform_management',
 }

@@ -1,6 +1,8 @@
 // tuneup/PlayerStatsManager.js
 import { Observable } from "@babylonjs/core/Misc/observable";
 import { DataManager } from "../DataManager";
+import { TEAM_SLOTS } from "./teams_const";
+import { Player } from "./Player";
 
 export function PlayerStatsManager() {
     DataManager.call(this);
@@ -15,6 +17,13 @@ export function PlayerStatsManager() {
         speed: 10,
         speed_max: 2,
     };
+    this.team = {
+        [TEAM_SLOTS.MAIN]:{
+            type: Player,
+        },
+        [TEAM_SLOTS.SECOND]:null,
+        [TEAM_SLOTS.THIRD]:null,
+    }
 
     this.onHealthChanged = new Observable();
     this.onManaChanged = new Observable();

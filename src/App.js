@@ -98,10 +98,11 @@ App.prototype.start = async function(){
         engine.resize();
         this?.cameras?.resize?.();
     });
-    Inspector.Show();
+    // Inspector.Show();
 }
 
 App.prototype.uiHandler = function(type, detail){
+    // debugger
     const handler = this.uiEventHandlers?.[type];
     if (handler) {
         handler.call(this, detail);
