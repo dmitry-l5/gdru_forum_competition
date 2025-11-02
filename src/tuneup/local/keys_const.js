@@ -3,4 +3,5 @@ export const TEXT_KEYS = {
     NEW_GAME: 'new_game',
     CONTINUE_GAME: 'continue_game',
     EXIT: 'exit',
+    GREETING:'greeting',
 }

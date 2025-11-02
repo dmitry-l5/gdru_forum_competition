@@ -12,6 +12,7 @@ AppUIEventsMixin.uiEventsInit = function() {
   // this.uiEventHandlers[UI_EVENTS.TOGGLE_PAUSE] = this._togglePause;
   this.uiEventHandlers[UI_EVENTS.OPEN_MANAGEMENT_SCREEN] = this._showTeamManagementUI;
   this.uiEventHandlers[UI_EVENTS.SELECT_FIRST_HERO] = this._select_first_hero;
+  this.uiEventHandlers[UI_EVENTS.SELECT_FIRST_HERO_CONFIRM] = this._select_first_hero_confirm;
 };
 
 AppUIEventsMixin._changeLang = function(detail){
@@ -35,4 +36,7 @@ AppUIEventsMixin._showTeamManagementUI = function(){
 AppUIEventsMixin._select_first_hero = function(options){
   const {unit_id} = options;
   this.showcase?.replaceHero(unit_id, TEAM_SLOTS.MAIN);
+}
+AppUIEventsMixin._select_first_hero_confirm = function(options){
+  this.showcase?.ui?.showLayout?.(LAYOUTS_UI.MAIN, false);
 }

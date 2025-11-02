@@ -27,28 +27,6 @@ MainLayout.prototype.create = async function() {
     this.container.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
     this.container.isHitTestVisible = false;
     const start_menu = this.createStartMenu();
-
-
-    let observer;
-
-    observer = this.gameDataManager.playerStatsManager.onHealthChanged.add((newHealth) => {
-        if (this.items.healthBar) {
-            this.items.healthBar.width = `${newHealth}%`;
-            this.items.healthBar.background = newHealth > 50 ? "blue" : (newHealth > 20 ? "orange" : "red");
-        }
-    });
-    this.observers.push(observer);
-
-    observer = this.gameDataManager.playerStatsManager.onScoreChanged.add((newScore) => {
-        if (this.items.scoreText) {
-            this.items.scoreText.text = `Score: ${newScore}`;
-        }
-    });
-    this.observers.push(observer);
-
-
-
-
     this.container.addControl(start_menu);
     this.isInit = true;
     return this.container;
@@ -56,49 +34,23 @@ MainLayout.prototype.create = async function() {
 
 MainLayout.prototype.createStartMenu = function(size = 1){
     const container = new Container('start_menu');
-    container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+    container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     container.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-    container.background = 'green';
+    container.background = '#00ff6a79';
     container.width = '900px';
     container.height = '900px';
+    container.cornerRadius = 20;
 
-    const scoreText = new TextBlock();
-    scoreText.text = `Score: ${this.gameDataManager.playerStatsManager.getScore()}`; 
-    scoreText.color = "white";
-    scoreText.fontSize = 72;
-    scoreText.top = "300px";
-    scoreText.left = "0px";
-    scoreText.width = '500px';
-    scoreText.height = '75px';
-    this.items.scoreText = scoreText;
-    container.addControl(scoreText);
 
-    const healthBarContainer = new Container();
-    healthBarContainer.width = "400px";
-    healthBarContainer.height = "30px";
-    healthBarContainer.background = "gray";
-    healthBarContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    healthBarContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    healthBarContainer.top = "10px";
-    this.container.addControl(healthBarContainer);
+    const text = new TextBlock('title', this.polylang.t(TEXT_KEYS.GREETING));
+    text.top = '-350px';
+    text.width = '90%';
+    text.height = '300px';
+    this.registerText( TEXT_KEYS.GREETING, text );
 
-    const healthBar = new Container();
-    healthBar.width = `${this.gameDataManager.playerStatsManager.getHealth()}%`;
-    healthBar.height = "100%";
-    healthBar.background = "purple";
-    healthBar.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    this.items.healthBar = healthBar;
-    healthBarContainer.addControl(healthBar);
-
-    const text = new TextBlock('title', 'This is title');
-    text.top = '-300px';
-    text.width = '500px';
-    text.height = '75px';
-    this.registerText( TEXT_KEYS.MAIN_MENU_TITLE, text );
-
-    const new_game_btn = Button.CreateSimpleButton('new_game_btn', 'new_game_btn');
+    const new_game_btn = Button.CreateSimpleButton('new_game_btn', this.polylang.t(TEXT_KEYS.NEW_GAME));
     this.registerText( TEXT_KEYS.NEW_GAME, new_game_btn.textBlock );
-    new_game_btn.top = '-100px';
+    new_game_btn.top = '-200px';
     new_game_btn.width = '500px';
     new_game_btn.height = '75px';
     new_game_btn.onPointerClickObservable.add(()=>{
@@ -108,26 +60,32 @@ MainLayout.prototype.createStartMenu = function(size = 1){
         );
     });
 
-    const continue_game_btn = Button.CreateImageButton('continue_game_btn', 'continue_game_btn');
+    const continue_game_btn = Button.CreateSimpleButton('continue_game_btn', this.polylang.t(TEXT_KEYS.CONTINUE_GAME));
     this.registerText( TEXT_KEYS.CONTINUE_GAME, continue_game_btn.textBlock );
-    continue_game_btn.top = '0px';
+    continue_game_btn.top = '-100px';
     continue_game_btn.width = '500px';
     continue_game_btn.height = '75px';
+    // continue_game_btn.image.width = '0%';
+    // continue_game_btn.image.height = '0%';
+    // continue_game_btn.textBlock.width = '100%';
+    // continue_game_btn.textBlock.height = '100%';
+    // continue_game_btn.textBlock.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+    // continue_game_btn.textBlock.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
-    const management_btn = Button.CreateImageButton('management_btn', 'management_btn');
-    this.registerText( TEXT_KEYS.CONTINUE_GAME, management_btn.textBlock );
-    management_btn.top = '150px';
-    management_btn.width = '500px';
-    management_btn.height = '75px';
-    management_btn.onPointerClickObservable.add(()=>{
-        this.uiCommandsListener?.(
-            UI_EVENTS.OPEN_MANAGEMENT_SCREEN,
-            {}
-        )
-    });
+    // const management_btn = Button.CreateSimpleButton('management_btn', this.polylang.t(TEXT_KEYS.CONTINUE_GAME));
+    // this.registerText( TEXT_KEYS.CONTINUE_GAME, management_btn.textBlock );
+    // management_btn.top = '150px';
+    // management_btn.width = '500px';
+    // management_btn.height = '75px';
+    // management_btn.onPointerClickObservable.add(()=>{
+    //     this.uiCommandsListener?.(
+    //         UI_EVENTS.OPEN_MANAGEMENT_SCREEN,
+    //         {}
+    //     )
+    // });
 
-    const change_lang_btn = Button.CreateImageButton('change_lang_btn', 'change_lang_btn');
-    change_lang_btn.top = '-200px';
+    const change_lang_btn = Button.CreateSimpleButton('change_lang_btn', 'Язык / Language');
+    change_lang_btn.top = '300px';
     change_lang_btn.width = '500px';
     change_lang_btn.height = '75px';
     change_lang_btn.onPointerClickObservable.add(()=>{
@@ -148,7 +106,7 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     container.addControl(new_game_btn);
     container.addControl(continue_game_btn);
     container.addControl(change_lang_btn);
-    container.addControl(management_btn);
+    // container.addControl(management_btn);
     container.addControl(text);
     return container;
 }

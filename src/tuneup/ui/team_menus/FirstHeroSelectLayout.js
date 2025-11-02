@@ -19,6 +19,7 @@ export function FirstHeroSelectLayout(ADTexture, resourceLoader, polylang, gameD
         healthBar: null,
         hero_buttons: {},
     };
+    this.heroBtnSize = 200;
 }
 FirstHeroSelectLayout.prototype = Object.create(LayoutUI.prototype);
 FirstHeroSelectLayout.prototype.constructor = FirstHeroSelectLayout;
@@ -43,19 +44,48 @@ FirstHeroSelectLayout.prototype.createConfirmPanel = function(){
     container.verticalAlignment = Container.VERTICAL_ALIGNMENT_TOP;
     container.height = '150px';
     container.width = '100%';
-    container.background = 'black';
+    container.background = 'transparent';
+
+    
+    const text = new TextBlock('select_your_hero_text', "Выбери своего первого персонажа")
+    text.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+    text.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    text.width = '50%'
+    text.height = '100%'
+    text.fontSize = 48;
+    text.left = 0;
+    text.top = 0;
+    text.color = 'blue';
+    text.background = '#eaee00ffff'
+    container.addControl(text);
+
+    const confirm_btn = Button.CreateSimpleButton('confirm_first_hero', 'Подтвердить');
+    confirm_btn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    confirm_btn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER
+    confirm_btn.width = '300px';
+    confirm_btn.height = '100px';
+    confirm_btn.background = 'yellow';
+    confirm_btn.cornerRadius = 20;
+    confirm_btn.onPointerClickObservable.add(()=>{
+        this.uiCommandsListener?.(
+            UI_EVENTS.SELECT_FIRST_HERO_CONFIRM,
+            {unit_id: this.gameDataManager.firstSelectedHero}
+        )
+    });
+    container.addControl(confirm_btn);
 
     return container;
 }
 
 FirstHeroSelectLayout.prototype._createHeroButton = function(heroId) {
     const container_btn = Button.CreateSimpleButton("hero_btn_" + heroId, UNITS_ID[heroId] || heroId);
-    container_btn.width = '240px';
-    container_btn.height = '240px';
+    container_btn.width  = this.heroBtnSize+"px";
+    container_btn.height = this.heroBtnSize+"px";
     container_btn.color = "white";
     container_btn.cornerRadius = 20;
     container_btn.background = 'blue';
     container_btn.onPointerClickObservable.add(()=>{
+        this.gameDataManager.firstSelectedHero = heroId;
         this.uiCommandsListener?.(
             UI_EVENTS.SELECT_FIRST_HERO,
             {unit_id: heroId}
@@ -79,15 +109,15 @@ FirstHeroSelectLayout.prototype.createHeroSelector = function(){
     const container = new Container('hero_selector');
     container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     container.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-    container.background = 'green';
-    container.width = '100%'; 
-    container.height = '250px';
+    container.background = '#ffffff00';
+    container.width = '700px'; 
+    container.height = '210px';
     const numHeroes = this.startHeroes.length;
     const buttonWidth = 240;
     const spacing = 40;
-    const totalItemWidth = buttonWidth + spacing;
+    const totalItemWidth = this.heroBtnSize + spacing;
     const totalSelectorWidth = numHeroes * totalItemWidth - spacing;
-    let currentLeftOffset = -(totalSelectorWidth / 2) + (buttonWidth / 2);
+    let currentLeftOffset = -(totalSelectorWidth / 2) + (this.heroBtnSize / 2);
     this.startHeroes.forEach(heroId => {
         const heroButton = this._createHeroButton(heroId);
         heroButton.left = `${currentLeftOffset}px`;

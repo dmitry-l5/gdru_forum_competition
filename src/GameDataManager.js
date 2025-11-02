@@ -32,6 +32,23 @@ GameDataManager.prototype.constructor = GameDataManager;
 
 GameDataManager.prototype.initDataSet = function(){
     this.dispose();
+    this.playerStatsManager = new PlayerStatsManager();
+
+}
+
+GameDataManager.prototype.dispose = function() {
+    this.playerStatsManager?.dispose();
+    if (this.team) {
+        for (const slotKey in this.team) {
+            if (this.team.hasOwnProperty(slotKey)) {
+                const item = this.team[slotKey];
+                if (item && typeof item.dispose === 'function') {
+                    item.dispose(); 
+                }
+                this.team[slotKey] = null;
+            }
+        }
+    }
     this.availableChars = {};
     this.startCharSelected = false;
     this.team = {
@@ -39,12 +56,7 @@ GameDataManager.prototype.initDataSet = function(){
         [TEAM_SLOTS.SECOND]: null,
         [TEAM_SLOTS.THIRD]: null,
     }
-}
-
-GameDataManager.prototype.dispose = function() {
-    this.playerStatsManager.dispose();
-    // if (this.inventory) this.inventory.dispose();
-    // if (this.questLog) this.questLog.dispose();
+    this.playerStatsManager = null; 
     console.log("GameDataManager disposed.");
 };
 

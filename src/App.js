@@ -22,7 +22,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Inspector } from "@babylonjs/inspector";
 import { prototype } from "jszip";
 import { AppCreateShowcaseMixin } from "./tuneup/mixins/AppCreateShowcaseMixin";
-import { SceneLoader } from "@babylonjs/core";
+import { Color4, SceneLoader } from "@babylonjs/core";
 
 
 
@@ -80,7 +80,6 @@ App.prototype.dispose = function() {
     this.inputManager?.dispose();
     this.cameras?.destroy();
     this.world?.unloadLevel();
-    //globalThis.physicsViewer?.dispose(); // Удаляем disposer для PhysicsViewer
     console.log("App disposed.");
 };
 
@@ -89,13 +88,15 @@ App.prototype.start = async function(){
     const engine = this.engine = new Engine(this.canvas);
     engine.loadingScreen = null;
     const scene = this.scene = new Scene(engine);
+    scene.clearColor = new Color4(0.5, 0.2, 0.2, 1.0);
     this.showcase.scene = await this.createShowcase(engine);
+    this.showcase.scene.clearColor = new Color4(0.5, 0.2, 0.2, 1.0);
     this.inputManager = new InputManager(this.scene, this.canvas);
     const cameras = this.cameras = new CamerasManager(this.inputManager, this);
     this.adTexture = AdvancedDynamicTexture.CreateFullscreenUI("ui", true, this.scene);
     this.ui = new AppUI(this.adTexture, this.resourceLoader, this.polylang, this.gameDataManager, this.inputManager, this);
     this.ui.createUI();
-
+    this.activeScene = this.scene;
     this.ui.showLayout(LAYOUTS_UI.MAIN, false);
     this.world = new WorldTuner( this, { inputManager: this.inputManager, gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader });
     this.inputManager.onActionTriggeredObservable.add((evt)=>{
@@ -139,6 +140,9 @@ App.prototype.uiHandler = function(type, detail){
 App.prototype.newGame = function(){
     this.gameDataManager.initDataSet();
     this.teamManagementOpen();
+    this.activeScene = this.showcase.scene;
+    // this.reloadTeamScreen();
+
     // this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
     // this.world.loadLevel(MAPS_ID.INTRO);
     //this.world.loadLevel(MAPS_ID.INTRO, (data)=>{console.log(data);});

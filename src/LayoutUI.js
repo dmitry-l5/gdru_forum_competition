@@ -42,7 +42,10 @@ LayoutUI.prototype.getTexture = async function(path, chunk = RES_CHUNKS.REQUIRED
 
 LayoutUI.prototype.registerText = function(KEY, textBlockInstance){
     if (textBlockInstance && typeof textBlockInstance.text !== 'undefined') {
-        this.translatableText[KEY] = textBlockInstance;
+        if (!this.translatableText[KEY]) {
+            this.translatableText[KEY] = [];
+        }
+        this.translatableText[KEY].push(textBlockInstance); 
     } else {
         console.warn('Attempted to register a non-text block or invalid instance for translation:', textBlockInstance);
     }
@@ -51,8 +54,10 @@ LayoutUI.prototype.registerText = function(KEY, textBlockInstance){
 LayoutUI.prototype.changeLang = function(LANG){
     for(let key in this.translatableText){
         if (this.translatableText.hasOwnProperty(key)) {
-            const textBlock = this.translatableText[key];           
-            textBlock.text = this.polylang.t(key);
+            const textBlockArray = this.translatableText[key];
+            textBlockArray.forEach(textBlock => {
+                textBlock.text = this.polylang.t(key);
+            });
         }
     }
 }

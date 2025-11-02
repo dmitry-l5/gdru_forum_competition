@@ -15,6 +15,7 @@ import { Inspector } from "@babylonjs/inspector";
 export const AppCreateShowcaseMixin = {
   resourceLoader: new ResourceLoader(),
     showcase : {
+      firstSelectedHero:null,
       slots:{
         [TEAM_SLOTS.MAIN]:null,
         [TEAM_SLOTS.SECOND]:null,
@@ -72,7 +73,7 @@ export const AppCreateShowcaseMixin = {
           this.slots[SLOT].dispose();
           this.slots[SLOT] = null;
         }
-        
+        AppCreateShowcaseMixin.setSelectedHero(UNIT);
         if(Object.values(UNITS_ID).includes(UNIT) && UNITS_META[UNIT]){
           this.getContainer(UNIT, RESOURCE_TYPE.UNIT).then((container)=>{
             const root = this.slots[SLOT] = container.instantiateModelsToScene();
@@ -88,7 +89,9 @@ export const AppCreateShowcaseMixin = {
       },
     },
 };
-
+AppCreateShowcaseMixin.setSelectedHero = function(hero_id){
+  this.showcase.firstSelectedHero = hero_id;
+}
 AppCreateShowcaseMixin.createShowcase = async function(engine) {
   const meta = this.resourceLoader.getModelMeta(MODELS_ID.SETUP_TEAM_SCENE);
   const raw_model = await this.resourceLoader.getFile(meta.PATH, meta.CHUNK);
@@ -115,7 +118,7 @@ AppCreateShowcaseMixin.createShowcase = async function(engine) {
   camera.setTarget(scene.getNodeByName('team_camera_target'));
   // camera.attachControl();
 
-  this.reloadTeamScreen();
+  // this.reloadTeamScreen();
   return scene;
 };
 
@@ -124,8 +127,22 @@ AppCreateShowcaseMixin.loadHeroesToContainers = function(){
 }
 
 AppCreateShowcaseMixin.reloadTeamScreen = function(){
+  const slots = this.showcase.slots;
+  for (const slotKey in slots) {
+    if (slots.hasOwnProperty(slotKey)) {
+        const item = slots[slotKey];
+        
+        if (item != null) {
+            item.dispose();
+            slots[slotKey] = null;
+        }
+    }
+  }
+  this.gameDataManager.firstSelectedHero = null;
   if(!this.gameDataManager.startCharSelected){
     this.showcase.ui.showLayout(LAYOUTS_UI.FIRST_HERO, false);
+  }else{
+    this.showcase.ui.showLayout(LAYOUTS_UI.MAIN, false);
   }
 }
 

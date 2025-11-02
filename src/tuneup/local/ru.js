@@ -5,4 +5,5 @@ export const dictionary_ru = {
     [TEXT_KEYS.NEW_GAME]:'Новая игра',
     [TEXT_KEYS.CONTINUE_GAME]:'Продолжить',
     [TEXT_KEYS.EXIT]: 'Выход',
+    [TEXT_KEYS.GREETING]: 'Опа, кто к нам зашёл!',
 }

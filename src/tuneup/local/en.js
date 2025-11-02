@@ -5,4 +5,5 @@ export const dictionary_en = {
     [TEXT_KEYS.NEW_GAME]:'New Game',
     [TEXT_KEYS.CONTINUE_GAME]:'Continue Game',
     [TEXT_KEYS.EXIT]: 'Exit',
+    [TEXT_KEYS.GREETING]: 'Oop-de-doo! Look who finally showed up!',
 }

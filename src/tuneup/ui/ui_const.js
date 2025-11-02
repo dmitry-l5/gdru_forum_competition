@@ -15,4 +15,5 @@ export const UI_EVENTS = {
     SOUND_ENABLE: 'sound_enable',
     SOUND_DISABLE: 'sound_disable',
     SELECT_FIRST_HERO:"select_first_hero",
+    SELECT_FIRST_HERO_CONFIRM:"select_first_hero_confirm",
 }
