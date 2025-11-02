@@ -8,7 +8,7 @@ import { CamerasManager } from "./CamerasManager";
 import { WorldTuner } from "./tuneup/WorldTuner";
 import { AppUI } from "./AppUI";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
-import { LAYOUTS_UI } from "./tuneup/ui_const";
+import { LAYOUTS_UI } from "./tuneup/ui/ui_const";
 import { dictionary_ru } from "./tuneup/local/ru";
 import { dictionary_en } from "./tuneup/local/en";
 import Polylang from "polylang";
@@ -20,12 +20,16 @@ import { MAPS_ID } from "./tuneup/maps_const";
 import { LayoutUI } from "./LayoutUI";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Inspector } from "@babylonjs/inspector";
+import { prototype } from "jszip";
+import { AppCreateShowcaseMixin } from "./tuneup/mixins/AppCreateShowcaseMixin";
+import { SceneLoader } from "@babylonjs/core";
 
 
 
 
 export function App(canvas, options = {}){
-    const {pre_load_screen = null, ysdk_manager = null} = options;
+    const {pre_load_screen = null, ysdk_manager = null, load_game_file = null} = options;
+    this.loadGameForm = load_game_file;
     this.polylang = new Polylang();
     this.polylang.add('ru', dictionary_ru);
     this.polylang.add('en', dictionary_en);
@@ -37,14 +41,18 @@ export function App(canvas, options = {}){
     this.canvas = canvas;
     this.engine = null;
     this.scene = null;
+    this.showcaseScene = null;
+    this.activeScene = null;
     this.cameras = null;
     this.world = null;
     this.ui = null;
     this.gameDataManager = null;
     this.inputManager = null;
+    SceneLoader.ShowLoadingScreen = false;
 
     Object.assign(this, AppUIEventsMixin);
     this.uiEventsInit();
+    Object.assign(this, AppCreateShowcaseMixin);
 
     this.resourceLoader.require(RES_CHUNKS.REQUIRED)
     .then(
@@ -77,22 +85,41 @@ App.prototype.dispose = function() {
 };
 
 App.prototype.start = async function(){
+    this.gameDataManager = new GameDataManager();
     const engine = this.engine = new Engine(this.canvas);
+    engine.loadingScreen = null;
     const scene = this.scene = new Scene(engine);
-
+    this.showcase.scene = await this.createShowcase(engine);
     this.inputManager = new InputManager(this.scene, this.canvas);
     const cameras = this.cameras = new CamerasManager(this.inputManager, this);
     this.adTexture = AdvancedDynamicTexture.CreateFullscreenUI("ui", true, this.scene);
-    this.gameDataManager = new GameDataManager();
     this.ui = new AppUI(this.adTexture, this.resourceLoader, this.polylang, this.gameDataManager, this.inputManager, this);
     this.ui.createUI();
 
     this.ui.showLayout(LAYOUTS_UI.MAIN, false);
     this.world = new WorldTuner( this, { inputManager: this.inputManager, gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader });
-
-    engine.runRenderLoop(function () {
-        scene.render();
+    this.inputManager.onActionTriggeredObservable.add((evt)=>{
+        const {action, value, event} = evt;
+        console.log(action);
         
+        switch(action){
+            case 'key_down_KeyO':
+                this.activeScene = this.scene;
+                break;
+            case 'key_down_KeyP':
+                console.warn(this.showcase.scene);
+                
+                this.activeScene = this.showcase.scene;
+                break;
+        }
+        // {
+        //             action: `key_down_${keyCode}`,
+        //             value: true,
+        //             event: kbInfo.event
+        //         }
+    });
+    engine.runRenderLoop( () => {
+        this.activeScene?.render?.();
     });
     window.addEventListener('resize', () => {
         engine.resize();
@@ -102,7 +129,6 @@ App.prototype.start = async function(){
 }
 
 App.prototype.uiHandler = function(type, detail){
-    // debugger
     const handler = this.uiEventHandlers?.[type];
     if (handler) {
         handler.call(this, detail);
@@ -111,7 +137,22 @@ App.prototype.uiHandler = function(type, detail){
     }
 }
 App.prototype.newGame = function(){
-    this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
-    this.world.loadLevel(MAPS_ID.INTRO);
+    this.gameDataManager.initDataSet();
+    this.teamManagementOpen();
+    // this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
+    // this.world.loadLevel(MAPS_ID.INTRO);
     //this.world.loadLevel(MAPS_ID.INTRO, (data)=>{console.log(data);});
+}
+App.prototype.teamManagementOpen = function(){
+    this.reloadTeamScreen?.();
+    let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
+    scene.onAfterRenderObservable.addOnce(()=>{
+        this.activeScene = this.showcaseScene;
+    });
+}
+App.prototype.teamManagementClose = function(){
+    let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
+    scene.onAfterRenderObservable.addOnce(()=>{
+        this.activeScene = this.scene;
+    });
 }

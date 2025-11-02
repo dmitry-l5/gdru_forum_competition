@@ -1,5 +1,10 @@
 import { ANIMATOR_STATE } from "./common_const";
 
+export const RESOURCE_TYPE = {
+    MODEL:'model',
+    UNIT:'unit',
+}
+
 export const RES_CHUNKS = {
     REQUIRED:'start_pack',
     ENTRY_LOC:'start_pack',
@@ -14,8 +19,13 @@ export const MODELS_ID = {
     HERO_BASE:'init_hero',
     SOLDER:'solder',
     HEAVY_SOLDER:'heavy_solder',
+    SETUP_TEAM_SCENE:'team_screen',
 }
 export const MODELS_META = {
+    [MODELS_ID.SETUP_TEAM_SCENE]:{
+        CHUNK:RES_CHUNKS.REQUIRED,
+        PATH: 'team_screen.glb',
+    },
     [MODELS_ID.HERO_BASE]: {
         CHUNK:RES_CHUNKS.HEROES,
         PATH: 'Alien/Alien_Helmet.glb',

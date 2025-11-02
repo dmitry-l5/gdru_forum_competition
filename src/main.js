@@ -6,6 +6,7 @@ import { yandexSDKManager } from './YandexSDKManager';
 // window.recast = await Recast();
 const canvas = document.getElementById('canvas_app');
 const load_screen = document.getElementById('pre_load_screen');
+const load_game_file = document.getElementById('load_game_file');
 let ysdk = null;
 let ysdk_manager = null;
 if(import.meta.env.VITE_YSDK){
@@ -15,4 +16,4 @@ if(import.meta.env.VITE_YSDK){
 
 
 
-const app = new App(canvas, {pre_load_screen: load_screen, ysdk_manager: ysdk_manager } );
+const app = new App(canvas, {pre_load_screen: load_screen, ysdk_manager: ysdk_manager, load_game_file: load_game_file } );

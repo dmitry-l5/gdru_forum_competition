@@ -28,6 +28,14 @@ World.prototype.initPathfinder = async function() {
     await this.pathfinder.init();
 };
 
+World.prototype.loadTeamScreen = async function(onProgress = null){
+    await this.loadMap(onProgress = null);
+}
+
+World.prototype.openShowcase = function(){
+    
+}
+
 World.prototype.loadMap = async function(MAP_ID, onProgress = null){
     console.log(`Попытка загрузки карты: ${MAP_ID}`);
     await this.flushMap();
@@ -136,15 +144,11 @@ World.prototype.loadResources = async function(onOverallProgress = null){
     if (!this.currentMapMeta) {
         return;
     }
-
     const chunksToLoad = [this.currentMapMeta.CHUNK, ...(this.currentMapMeta.CHUNKS || [])];
-
     let loadedChunksCount = 0;
     const totalChunks = chunksToLoad.length;
-
     const loadPromises = chunksToLoad.map(chunk =>
         new Promise((resolve, reject) => {
-            
             this.app.resourceLoader.require(chunk)
                 .then(() => {
                     loadedChunksCount++;

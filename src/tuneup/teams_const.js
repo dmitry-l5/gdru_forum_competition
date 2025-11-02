@@ -1,5 +1,5 @@
 export const TEAM_SLOTS = {
-    MAIN: 'main',
-    SECOND:'second',
-    THIRD:'third',
+    MAIN: 'sot_1',
+    SECOND:'slot_2',
+    THIRD:'slot_3',
 }

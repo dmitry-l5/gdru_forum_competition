@@ -2,8 +2,8 @@ import { LayoutUI } from "./LayoutUI";
 import { BattlePrepareLayout } from "./tuneup/ui/BattlePrepareLayout";
 import { MainLayout } from "./tuneup/ui/MainLayout";
 import { MapLayout } from "./tuneup/ui/MapLayout";
+import { LAYOUTS_UI } from "./tuneup/ui/ui_const";
 import { VirtualControlsLayout } from "./tuneup/ui/VirtualControlsLayout";
-import { LAYOUTS_UI } from "./tuneup/ui_const";
 
 export function AppUI(ADTexture, resourceLoader, polylang, gameDataManager, inputManager, app){
     this.app = app;
@@ -24,7 +24,8 @@ AppUI.prototype = Object.create(null);
 AppUI.prototype.constructor = AppUI;
 
 AppUI.prototype._setupInputHandlers = function() {
-    this.inputManager.onActionTriggeredObservable.add((actionInfo) => {
+    
+    this.inputManager?.onActionTriggeredObservable?.add?.((actionInfo) => {
         if (actionInfo.action === "toggle_pause" && actionInfo.value === true) {
             this.app.uiHandler(UI_EVENTS.TOGGLE_PAUSE);
             console.log("UI: Toggle Pause via InputManager");

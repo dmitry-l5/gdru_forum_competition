@@ -1,5 +1,6 @@
+import { TEAM_SLOTS } from "../teams_const";
 import { UI_EVENTS } from "../ui/ui_const";
-import { LAYOUTS_UI } from "../ui_const";
+import { LAYOUTS_UI } from "../ui/ui_const";
 
 export const AppUIEventsMixin = {};
 
@@ -10,11 +11,13 @@ AppUIEventsMixin.uiEventsInit = function() {
   this.uiEventHandlers[UI_EVENTS.NEW_GAME] = this._newGameRequest;
   // this.uiEventHandlers[UI_EVENTS.TOGGLE_PAUSE] = this._togglePause;
   this.uiEventHandlers[UI_EVENTS.OPEN_MANAGEMENT_SCREEN] = this._showTeamManagementUI;
+  this.uiEventHandlers[UI_EVENTS.SELECT_FIRST_HERO] = this._select_first_hero;
 };
 
 AppUIEventsMixin._changeLang = function(detail){
   this.polylang.lang = detail.lang;
   this.ui.changeLang();
+  this.showcase?.ui.changeLang();
 };
 
 AppUIEventsMixin._newGameRequest = function(detail){
@@ -26,5 +29,10 @@ AppUIEventsMixin._togglePause = function() {
     this.gameDataManager.setPauseStatus(!this.gameDataManager.isGamePaused()); // gameDataManager - свойство App
 };
 AppUIEventsMixin._showTeamManagementUI = function(){
+  this.teamManagement();
   this.ui.showLayout(LAYOUTS_UI.MANAGEMENT, false);
+}
+AppUIEventsMixin._select_first_hero = function(options){
+  const {unit_id} = options;
+  this.showcase?.replaceHero(unit_id, TEAM_SLOTS.MAIN);
 }
