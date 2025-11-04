@@ -3,7 +3,8 @@ import { MODELS_META, ZIP_PREFIX } from "./tuneup/resource_const";
 
 export function ResourceLoader(){
     this.arhives = {};
-    this.localMode = import.meta.env.VITE_RES_LOCAL_MODE?true:false;
+    // this.localMode = import.meta.env.VITE_RES_LOCAL_MODE?true:false;
+    this.localMode = (import.meta.env.VITE_RES_LOCAL_MODE===true)||(import.meta.env.VITE_RES_LOCAL_MODE==='true')?true:false;
     this.loadingPromises = {};
 }
 ResourceLoader.prototype = Object.create(null);

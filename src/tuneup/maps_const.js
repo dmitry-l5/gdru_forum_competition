@@ -19,7 +19,7 @@ export const MAPS_META = {
     
     [MAPS_ID.INTRO]:{
         CHUNK: RES_CHUNKS.TRAINING_ARENA,
-        PATH: 'models/default_arena.glb',
+        PATH: 'models/intro.glb',
         CHUNKS:[
             RES_CHUNKS.REQUIRED,
         ],

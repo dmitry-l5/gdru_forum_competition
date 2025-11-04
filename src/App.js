@@ -29,6 +29,7 @@ import { Color4, SceneLoader } from "@babylonjs/core";
 
 export function App(canvas, options = {}){
     const {pre_load_screen = null, ysdk_manager = null, load_game_file = null} = options;
+    this.devMode = (import.meta.env.VITE_DEV_MODE===true)||(import.meta.env.VITE_DEV_MODE==='true')?true:false;   
     this.loadGameForm = load_game_file;
     this.polylang = new Polylang();
     this.polylang.add('ru', dictionary_ru);
@@ -90,6 +91,8 @@ App.prototype.start = async function(){
     const scene = this.scene = new Scene(engine);
     scene.clearColor = new Color4(0.5, 0.2, 0.2, 1.0);
     this.showcase.scene = await this.createShowcase(engine);
+    // Inspector.Show(this.scene);
+    // Inspector.Show(this.showcase.scene);
     this.showcase.scene.clearColor = new Color4(0.5, 0.2, 0.2, 1.0);
     this.inputManager = new InputManager(this.scene, this.canvas);
     const cameras = this.cameras = new CamerasManager(this.inputManager, this);
@@ -119,6 +122,13 @@ App.prototype.start = async function(){
         //             event: kbInfo.event
         //         }
     });
+
+    if(this.devMode){
+        console.warn(' ----------   DEV_MODE Enabled   ---------- ');
+        this.gameDataManager?.initDevDataset(1);
+        this.goToMap();
+    }
+
     engine.runRenderLoop( () => {
         this.activeScene?.render?.();
     });
@@ -128,7 +138,6 @@ App.prototype.start = async function(){
     });
     // Inspector.Show();
 }
-
 App.prototype.uiHandler = function(type, detail){
     const handler = this.uiEventHandlers?.[type];
     if (handler) {
@@ -137,26 +146,41 @@ App.prototype.uiHandler = function(type, detail){
         console.warn(`Unhandled UI event type: ${type}`, detail);
     }
 }
-App.prototype.newGame = function(){
-    this.gameDataManager.initDataSet();
-    this.teamManagementOpen();
-    this.activeScene = this.showcase.scene;
+App.prototype.newGame = async function(){
+    this.gameDataManager.initDataset();
+    await this.teamManagementOpen();
+    // this.activeScene = this.showcase.scene;
     // this.reloadTeamScreen();
-
-    // this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
-    // this.world.loadLevel(MAPS_ID.INTRO);
-    //this.world.loadLevel(MAPS_ID.INTRO, (data)=>{console.log(data);});
 }
 App.prototype.teamManagementOpen = function(){
     this.reloadTeamScreen?.();
     let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
-    scene.onAfterRenderObservable.addOnce(()=>{
-        this.activeScene = this.showcaseScene;
+    return new Promise((resolve, reject)=>{
+        scene.onBeforeRenderObservable.addOnce(()=>{
+            this.activeScene = this.showcase.scene;
+            resolve();
+        }) 
     });
 }
 App.prototype.teamManagementClose = function(){
     let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
-    scene.onAfterRenderObservable.addOnce(()=>{
+    scene.onBeforeRenderObservable.addOnce(()=>{
         this.activeScene = this.scene;
     });
+}
+App.prototype.goToMainMenu = function(){
+    this.world?.flushMap?.();
+    this.activeScene = this.scene;
+    this.ui.showLayout(LAYOUTS_UI.MAIN, false);
+}
+App.prototype.goToMap = async function(map_id = null, gate_id = null){
+    if(!map_id){
+        map_id = this.gameDataManager.currentMap??null;
+    }
+    if(!gate_id){
+        gate_id = this.gameDataManager.currentGate??0;
+    }
+    this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
+    this.world.loadLevel(map_id, gate_id, (data)=>{console.log(data);});
+    await this.teamManagementClose();
 }

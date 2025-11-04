@@ -82,7 +82,7 @@ export const AppCreateShowcaseMixin = {
             if (containerNode) {
               rootMesh.parent = containerNode;
               rootMesh.position = Vector3.Zero(); 
-              rootMesh.rotation = Vector3.Zero();
+              rootMesh.rotation = new Vector3(0, Math.PI, 0,);
             }
           });
         }

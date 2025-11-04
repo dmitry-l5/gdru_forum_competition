@@ -6,6 +6,7 @@ import { CombatManager } from "./CombatManager";
 import { BEHAVIORS } from "./tuneup/common_const";
 import { PlaygroundActionsMixin } from "./tuneup/mixins/PlaygroundActionsMixin";
 import { TEAM_SLOTS } from "./tuneup/teams_const";
+import { UNITS_META } from "./tuneup/units/units_const";
 
 export function Playground(world, options) {
     const { pathfinder, resourceLoader } = options;
@@ -77,6 +78,8 @@ Playground.prototype.instantiatePlayerTeam = function(options = {}){
     const {gate = null} = options;
     const playerData = this.app.gameDataManager.playerStatsManager;
     const team = playerData.team;
+    const meta_main = UNITS_META[TEAM_SLOTS.MAIN];
+    
     this.bots.push(
         new (team[TEAM_SLOTS.MAIN].type)({"":""})
     )

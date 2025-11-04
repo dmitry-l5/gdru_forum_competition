@@ -35,7 +35,8 @@ export const UNITS_ID = {
 export const UNITS_META = {
     [UNITS_ID.KAIDEN]            : {
         evailableOnStart: true,
-        MODEL_ID : MODELS_ID.HERO_BASE
+        MODEL_ID : MODELS_ID.HERO_BASE,
+        
     },
     [UNITS_ID.RANGER_FOX]        : {
         evailableOnStart: true,

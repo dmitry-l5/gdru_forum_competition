@@ -65,12 +65,19 @@ PlaygroundTagsMixin.cameraMainLocation = function(node, value, props) {
     console.log(`Playground: Обнаружена начальная позиция мяча: ${node.name} (${value})`);
     this.cameraMainLocation = node;
 };
-PlaygroundTagsMixin.startPosition = function(node, value, props) {
+PlaygroundTagsMixin.gate = function(node, value, props) {
     console.log(`Playground: Обнаружена начальная позиция мяча: ${node.name} (${value})`);
-    if(this.startPosition != undefined){
-        this.startPosition = node.position.clone();
+    if(!this.gates){
+        this.gates = {}
     }
+    this.gates[value] = node.position.clone();
 };
+// PlaygroundTagsMixin.startPosition = function(node, value, props) {
+//     console.log(`Playground: Обнаружена начальная позиция мяча: ${node.name} (${value})`);
+//     if(this.startPosition != undefined){
+//         this.startPosition = node.position.clone();
+//     }
+// };
 
 /**
  * Преобразует строку к 'Верблюжьей нотации'.

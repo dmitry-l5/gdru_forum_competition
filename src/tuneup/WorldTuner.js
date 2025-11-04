@@ -53,22 +53,19 @@ WorldTuner.prototype._setupGameLoopObservers = function() {
     });
 };
 
-WorldTuner.prototype.loadLevel = async function(levelName, onProgress = null) {
-    console.log(`Загрузка уровня (карты): ${levelName}...`);
-    await this.loadMap(levelName, onProgress);
-    this.player = new Player(this.scene, new Vector3(0, 0, 0), { gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader } );
-    // this.playground.instantiatePlayerTeam();
+WorldTuner.prototype.loadLevel = async function(map_id, gate_id, onProgress = null) {
+    console.log(`Загрузка уровня (карты): ${map_id}...`);
+    await this.loadMap(map_id, onProgress);
+    //this.player = new Player(this.scene, new Vector3(0, 0, 0), { gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader } );
+    const team = this.gameDataManager.team;
+    this.playground.instantiatePlayerTeam(team, gate_id);
     // if(this.playground.cameraMainLocation){ 
     //     this.app.cameras.setPosition(this.playground.cameraMainLocation.position);
     //     this.app.cameras.setTarget(Vector3.Zero());
     // }
-    
     // this.player.init(MODELS_ID.HERO_BASE);
-    console.log(`Уровень "${levelName}" загружен.`);
+    console.log(`Уровень "${map_id}" загружен.`);
     console.log("WorldTuner: Загрузка карты завершена. Начинаем построение NavMesh...");
-
-    
-
 };
 
 WorldTuner.prototype.unloadLevel = function() {

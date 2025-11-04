@@ -64,3 +64,20 @@ LayoutUI.prototype.changeLang = function(LANG){
 // LayoutUI.prototype.registeruiHandler = function(callback){
 //     this.uiHandler = callback;
 // }
+LayoutUI.prototype.centerInputText = function(inputControl){
+    const ADTexture = this.ADTexture; 
+    if (inputControl.widthInPixels === 0 || !inputControl.text) {
+        inputControl.paddingLeft = '0px';
+        return;
+    }
+    const context = ADTexture.getContext();
+    context.font = `${inputControl.fontSize}px ${inputControl.fontFamily}`;
+    const textWidth = context.measureText(inputControl.text).width;
+    const controlWidth = inputControl.widthInPixels; 
+    if (controlWidth > textWidth) {
+        const requiredPadding = (controlWidth - textWidth) / 2;
+        inputControl.paddingLeft = requiredPadding + 'px';
+    } else {
+        inputControl.paddingLeft = '0px';
+    }
+};

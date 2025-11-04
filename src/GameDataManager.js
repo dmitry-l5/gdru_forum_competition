@@ -1,7 +1,8 @@
 import { Observable } from "@babylonjs/core/Misc/observable";
 import { PlayerStatsManager } from "./tuneup/PlayerStatsManager";
 import { TEAM_SLOTS } from "./tuneup/teams_const";
-import { UNITS_META } from "./tuneup/units/units_const";
+import { UNITS_ID, UNITS_META } from "./tuneup/units/units_const";
+import { MAPS_ID } from "./tuneup/maps_const";
 
 export function GameDataManager() {
     this.playerStatsManager = new PlayerStatsManager();
@@ -13,7 +14,7 @@ export function GameDataManager() {
         [TEAM_SLOTS.THIRD]: null,
     }
     
-    this.initDataSet();
+    this.initDataset();
 
     // this.gameData = {
     //     score: 0,
@@ -30,9 +31,56 @@ export function GameDataManager() {
 GameDataManager.prototype = Object.create(null);
 GameDataManager.prototype.constructor = GameDataManager;
 
-GameDataManager.prototype.initDataSet = function(){
+GameDataManager.prototype.initDevDataset = function(index){
+    const dataset = {
+        1:{
+            map:{
+                id:MAPS_ID.INTRO,
+                gateId:1,
+            },
+            team:{
+                [TEAM_SLOTS.MAIN]: UNITS_ID.KAIDEN,
+                // [TEAM_SLOTS.SECOND]: UNITS_ID.KAIDEN,
+                // [TEAM_SLOTS.THIRD]: UNITS_ID.KAIDEN,
+            }
+
+        },
+        2:{
+            map:{
+                id:MAPS_ID.START,
+                gateId:2,
+            }
+
+        }
+    }
+    if(dataset[index]){
+        this.applyDataset(dataset[index]);
+        return true;    
+    }else
+        return false;
+}
+GameDataManager.prototype.setCharacterToSlot = function(unit_id, slot_id){
+    if (slot_id in this.team) {
+        this.team[slot_id] = unit_id;
+    } else {
+        console.warn(`[GameDataManager] Попытка установить персонажа ${unit_id} в несуществующий слот: ${slot_id}`);
+    }
+}
+GameDataManager.prototype.initDataset = function(){
     this.dispose();
     this.playerStatsManager = new PlayerStatsManager();
+    this.currentMap = MAPS_ID.INTRO;
+    this.currentMapGate = 0;
+}
+GameDataManager.prototype.applyDataset = function(dataset){
+    this.validateDataset?.(dataset);
+
+    this.currentMap = dataset.map.id;
+    this.currentGate = dataset.map.gateId;
+    this.team[TEAM_SLOTS.MAIN] = dataset.team[TEAM_SLOTS.MAIN]??null;
+    this.team[TEAM_SLOTS.SECOND] = dataset.team[TEAM_SLOTS.SECOND]??null;
+    this.team[TEAM_SLOTS.THIRD] = dataset.team[TEAM_SLOTS.THIRD]??null;
+    
 
 }
 
