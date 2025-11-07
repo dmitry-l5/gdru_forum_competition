@@ -12,7 +12,7 @@ export function CamerasManager(inputManager, app){
     this.defaultCamera = new TargetCamera("camera_default", new Vector3(10, 15, 10), this.app.scene);
     this.defaultCamera.mode = Camera.ORTHOGRAPHIC_CAMERA;
     this.defaultCamera.setTarget(Vector3.Zero());
-    this.TARGET_HEIGHT_UNITS = 40;
+    this.TARGET_HEIGHT_UNITS = 30;
     this.defaultCamera.attachControl(this.app.canvas, true);
     this._updateOrthographicCamera();
 
@@ -70,13 +70,6 @@ CamerasManager.prototype._setupInputHandlers = function() {
             this.defaultCamera.position.z -= event.direction.y/10;
         }
     });
-
-
-    
-
-
-
-
 };
 
 CamerasManager.prototype.resize = function(){

@@ -6,9 +6,11 @@ import { LayoutUI } from "../../LayoutUI";
 import { TEXT_KEYS } from "../local/keys_const";
 import { LANGS } from "../common_const";
 import { UI_COLORS, UI_EVENTS } from "./ui_const";
+import { LayoutStylingMixin } from "./LayoutStylingMixin";
 
 export function MainLayout(ADTexture, resourceLoader, polylang, gameDataManager, uiCommandsListener) {
     LayoutUI.call(this, ADTexture, resourceLoader, polylang, gameDataManager, uiCommandsListener);
+    Object.assign(this, LayoutStylingMixin);
     this.items = {
         play_button: null,
         sound_en_btn: null,
@@ -63,14 +65,7 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     new_game_btn.top = '-100px';
     new_game_btn.width = '500px';
     new_game_btn.height = '75px';
-
-    new_game_btn.cornerRadius = 20;
-    new_game_btn.textBlock.fontSize = 36;
-    new_game_btn.background = UI_COLORS.BUTTON_DEFAULT;
-    new_game_btn.color = UI_COLORS.BUTTON_BORDER;
-    new_game_btn.textBlock.color = UI_COLORS.BUTTON_TEXT;
-    new_game_btn.onPointerEnterObservable.add((item)=>{item.background = UI_COLORS.BUTTON_HOVER});
-    new_game_btn.onPointerOutObservable.add((item)=>{item.background = UI_COLORS.BUTTON_DEFAULT});
+    this.defaultButtonStyling(new_game_btn);
     new_game_btn.onPointerClickObservable.add(()=>{
         this.uiCommandsListener?.(
             UI_EVENTS.NEW_GAME,
@@ -84,13 +79,7 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     continue_game_btn.width = '500px';
     continue_game_btn.height = '75px';
 
-    continue_game_btn.cornerRadius = 20;
-    continue_game_btn.textBlock.fontSize = 36;
-    continue_game_btn.background = UI_COLORS.BUTTON_DEFAULT;
-    continue_game_btn.color = UI_COLORS.BUTTON_BORDER;
-    continue_game_btn.textBlock.color = UI_COLORS.BUTTON_TEXT;
-    continue_game_btn.onPointerEnterObservable.add((item)=>{item.background = UI_COLORS.BUTTON_HOVER});
-    continue_game_btn.onPointerOutObservable.add((item)=>{item.background = UI_COLORS.BUTTON_DEFAULT});
+    this.defaultButtonStyling(continue_game_btn);
     continue_game_btn.onPointerClickObservable.add(()=>{
         alert(
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nisi modi suscipit odit illo iste ut vel minima, voluptate voluptatem ratione a repellat iure sapiente, eligendi, at provident! Reiciendis, dolorum ea.'
@@ -186,14 +175,7 @@ MainLayout.prototype.createStartMenu = function(size = 1){
     change_lang_btn.top = '200px';
     change_lang_btn.width = '500px';
     change_lang_btn.height = '75px';
-
-    change_lang_btn.cornerRadius = 20;
-    change_lang_btn.textBlock.fontSize = 36;
-    change_lang_btn.background = UI_COLORS.BUTTON_DEFAULT;
-    change_lang_btn.color = UI_COLORS.BUTTON_BORDER;
-    change_lang_btn.textBlock.color = UI_COLORS.BUTTON_TEXT;
-    change_lang_btn.onPointerEnterObservable.add((item)=>{item.background = UI_COLORS.BUTTON_HOVER});
-    change_lang_btn.onPointerOutObservable.add((item)=>{item.background = UI_COLORS.BUTTON_DEFAULT});
+    this.defaultButtonStyling(change_lang_btn);
 
     change_lang_btn.onPointerClickObservable.add(()=>{
         let lang;

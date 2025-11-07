@@ -7,8 +7,8 @@ import { TacticalCombatState } from "./tuneup/bots/behaviors/TacticalCombatState
 import { FollowPathState } from "./tuneup/bots/behaviors/FollowPathState";
 import { State } from "./tuneup/bots/behaviors/State";
 
-export function Character(scene, options) {
-    const {resourceLoader,} = options;
+export function Character(scene, position, options) {
+    const {resourceLoader} = options;
     this.scene = scene;
     this.resourceLoader = resourceLoader;
     this.world = options.world;
@@ -18,7 +18,7 @@ export function Character(scene, options) {
     this.root = new TransformNode("characterRoot", this.scene);
     this.root.scaling = Vector3.One();
     this.root.rotationQuaternion = Quaternion.Identity(); 
-
+    this.root.position = position;
     this.stats = {
         health: 100,
         maxHealth: 100,
@@ -61,11 +61,18 @@ export function Character(scene, options) {
     this.nextBehaviorArgs = null;
     this.lockBehavior = false;
 
+    
     this.behaviors = {
         [BEHAVIORS.IDLE]: IdleState,
         [BEHAVIORS.FOLLOW_PATH]: FollowPathState,
         // ... .
     };
+    Object.defineProperty(this, 'position', {
+        get: function() { return this.root.position; },
+        set: function(value) { this.root.position = value; },
+        enumerable: true,
+        configurable: true
+    });
 
 }
 

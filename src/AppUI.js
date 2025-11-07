@@ -43,6 +43,7 @@ AppUI.prototype.createUI = function(){
     this.layouts[LAYOUTS_UI.MANAGEMENT].create();
     this.layouts[LAYOUTS_UI.MAP] = new MapLayout(this.ADTexture, resourceLoader, this.polylang, this.gameDataManager, this.app.uiHandler.bind(this.app));
     this.layouts[LAYOUTS_UI.MAP].create();
+
     // this.layouts[LAYOUTS_UI.MAIN].registerListener( this.app.uiHandler.bind(this.app));
 
     // this.layouts[LAYOUTS_UI.PLAYGROUND] = new PlaygroundLayout(this.ADTexture, resourceLoader, app);

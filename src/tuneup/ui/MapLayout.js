@@ -7,10 +7,12 @@ import { LayoutUI } from "../../LayoutUI";
 import { TextBlock } from "@babylonjs/gui";
 import { TEXT_KEYS } from "../local/keys_const";
 import { LANGS } from "../common_const";
+import { LayoutStylingMixin } from "./LayoutStylingMixin";
 
 export function MapLayout(ADTexture, resourceLoader, polylang, gameData, uiHandler){
     this.gameData = gameData;
     LayoutUI.call(this, ADTexture, resourceLoader, polylang, gameData, uiHandler);
+    Object.assign(this, LayoutStylingMixin);
     this.items = {
         play_button: null,
         sound_en_btn: null,
@@ -23,7 +25,7 @@ MapLayout.prototype.constructor = MapLayout;
 MapLayout.prototype.create = async function(){
     this.container.height = '100%';
     this.container.width = '100%';
-    // this.container.isHitTestVisible = false;
+    this.container.isHitTestVisible = false;
     this.container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;;
     this.container.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;;
     this.container.background = "transparent";
@@ -37,10 +39,12 @@ MapLayout.prototype.createExitButton = function(){
     this.registerText( TEXT_KEYS.EXIT, close_btn.textBlock );
     close_btn.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     close_btn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    
     close_btn.left = '-150px';
     close_btn.top = '0px';
     close_btn.width = '100px';
     close_btn.height = '50px';
+    this.defaultButtonStyling(close_btn);
     return close_btn;
 }
 

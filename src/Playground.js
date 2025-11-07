@@ -7,6 +7,7 @@ import { BEHAVIORS } from "./tuneup/common_const";
 import { PlaygroundActionsMixin } from "./tuneup/mixins/PlaygroundActionsMixin";
 import { TEAM_SLOTS } from "./tuneup/teams_const";
 import { UNITS_META } from "./tuneup/units/units_const";
+import { UnitFactory } from "./tuneup/units/UnitFactory";
 
 export function Playground(world, options) {
     const { pathfinder, resourceLoader } = options;
@@ -74,15 +75,21 @@ Playground.prototype.handleSpawnPoints = function(spawn_points){
     });
 }
 
-Playground.prototype.instantiatePlayerTeam = function(options = {}){
+Playground.prototype.instantiatePlayerTeam = async function(options = {}){
     const {gate = null} = options;
     const playerData = this.app.gameDataManager.playerStatsManager;
     const team = playerData.team;
-    const meta_main = UNITS_META[TEAM_SLOTS.MAIN];
+    const meta_main = UNITS_META[this.app.gameDataManager.team[TEAM_SLOTS.MAIN]];
     
-    this.bots.push(
-        new (team[TEAM_SLOTS.MAIN].type)({"":""})
-    )
+    const gate_position = this.gates[meta_main.gates]??Vector3.Zero();
+    const main_unit =  UnitFactory.build( this.app.gameDataManager.team[TEAM_SLOTS.MAIN], {metadata:meta_main, position: Vector3.Zero()}, this.resourceLoader, this.scene)
+    .then((char)=>{
+        char.position = gate_position;
+    });
+    // main_unit.position = meta_main.gate
+    // this.bots.push(
+    //     new (team[TEAM_SLOTS.MAIN].type)({"":""})
+    // )
 
 }
 

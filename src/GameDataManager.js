@@ -47,8 +47,14 @@ GameDataManager.prototype.initDevDataset = function(index){
         },
         2:{
             map:{
-                id:MAPS_ID.START,
+                // id:MAPS_ID.START,
+                id:MAPS_ID.INTRO,
                 gateId:2,
+            },
+            team:{
+                [TEAM_SLOTS.MAIN]: UNITS_ID.ARIANA,
+                // [TEAM_SLOTS.SECOND]: UNITS_ID.KAIDEN,
+                // [TEAM_SLOTS.THIRD]: UNITS_ID.KAIDEN,
             }
 
         }

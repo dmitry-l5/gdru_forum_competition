@@ -157,6 +157,7 @@ App.prototype.teamManagementOpen = function(){
     let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
     return new Promise((resolve, reject)=>{
         scene.onBeforeRenderObservable.addOnce(()=>{
+            this.ui.showLayout(null, false);
             this.activeScene = this.showcase.scene;
             resolve();
         }) 
@@ -165,6 +166,7 @@ App.prototype.teamManagementOpen = function(){
 App.prototype.teamManagementClose = function(){
     let scene = (this.activeScene instanceof Scene)?this.activeScene:this.scene;
     scene.onBeforeRenderObservable.addOnce(()=>{
+        this.showcase.ui.showLayout(null, false);
         this.activeScene = this.scene;
     });
 }
@@ -180,7 +182,7 @@ App.prototype.goToMap = async function(map_id = null, gate_id = null){
     if(!gate_id){
         gate_id = this.gameDataManager.currentGate??0;
     }
-    this.ui.showLayout(LAYOUTS_UI.CONTROL, false);
+    this.ui.showLayout(LAYOUTS_UI.MAP, false);
     this.world.loadLevel(map_id, gate_id, (data)=>{console.log(data);});
     await this.teamManagementClose();
 }
