@@ -19,6 +19,7 @@ export const UI_EVENTS = {
     MAIN_MENU:'main_menu',
     GO_TO_MAP:'go_to_map',
     DEBUG_DATASET:'debug_dataset',
+    HERO_BUTTON:'hero_btn',
 }
 
 

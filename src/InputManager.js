@@ -110,10 +110,20 @@ InputManager.prototype._setupPointerInput = function() {
     this.scene.onPointerObservable.add((pointerInfo) => {
         switch (pointerInfo.type) {
             case PointerEventTypes.POINTERDOWN:
+                const downPickResult = this.scene.pick(this.scene.pointerX, this.scene.pointerY);
+                this.onPointerDownObservable.notifyObservers({ 
+                    pickResult: downPickResult, 
+                    event: pointerInfo.event 
+                });
+
                 this.onPointerDownObservable.notifyObservers(pointerInfo.event);
                 break;
             case PointerEventTypes.POINTERUP:
-                this.onPointerUpObservable.notifyObservers(pointerInfo.event); 
+                const upPickResult = this.scene.pick(this.scene.pointerX, this.scene.pointerY);
+                this.onPointerUpObservable.notifyObservers({ 
+                    pickResult: upPickResult, 
+                    event: pointerInfo.event 
+                });
                 break;
             case PointerEventTypes.POINTERMOVE:
                 this.onMoveObservable.notifyObservers({
@@ -129,9 +139,14 @@ InputManager.prototype._setupPointerInput = function() {
             case PointerEventTypes.POINTERTAP:
                 const pickResult = this.scene.pick(this.scene.pointerX, this.scene.pointerY);
                 if (pickResult.hit) {
-                    this.onPointerClickObservable.notifyObservers(pickResult.pickedPoint);
+                    this.onPointerClickObservable.notifyObservers(pickResult);
                 }
                 break;
+            case PointerEventTypes.POINTERDOUBLETAP:
+                break;
+            case PointerEventTypes.POINTERPICK:
+                break;
+
       
         }
     });

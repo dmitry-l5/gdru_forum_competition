@@ -1,12 +1,10 @@
+import { Playground } from "../Playground";
 import { World } from "../World";
-import { MAPS_ID } from "./maps_const";
-
-import { Mesh, Ray, Vector3 } from "@babylonjs/core";
-import { Player } from "./Player";
-import { MODELS_ID } from "./resource_const";
+import { PlaygroundTuner } from "./PlaygroundTuner";
 
 export function WorldTuner(app, options) {
     const { inputManager, gameDataManager, resourceLoader } = options;
+    options.playgroundConstructor = PlaygroundTuner;
     World.call(this, app, options);
     this.gameDataManager = gameDataManager;
     this.resourceLoader = resourceLoader;
@@ -27,17 +25,11 @@ WorldTuner.prototype._setupInputHandlers = function() {
         }
     });
 
-    this.inputManager.onPointerClickObservable.add((pickedPoint) => {
-        if (this.player && pickedPoint) {
-            const path = this.pathfinder.findPath(this.player.root.position, pickedPoint);
-            if (path && path.length > 0) {
-                this.player.setPath(path);
-                console.log(`WorldTuner: Игроку назначен путь с ${path.length} точками.`);
-            } else {
-                console.log("WorldTuner: Путь не найден для игрока до указанной точки.");
-                this.player.stopMoving();
-            }
+    this.inputManager.onPointerClickObservable.add((pickResult) => {
+        if(!(this.playground instanceof Playground)){
+            return;
         }
+        this.playground.handleClick(pickResult);
     });
 
 };
@@ -46,19 +38,19 @@ WorldTuner.prototype._setupGameLoopObservers = function() {
     console.warn(this.app.scene);
     this.app.scene.onBeforeRenderObservable.add(() => { 
         const deltaTime = this.app.engine.getDeltaTime() / 1000.0;
-        if (this.player) {
-            this.player.update(deltaTime);
-        }
+        // if (this.player) {
+        //     this.player.update(deltaTime);
+        // }
 
     });
 };
 
-WorldTuner.prototype.loadLevel = async function(map_id, gate_id, onProgress = null) {
+WorldTuner.prototype.loadLevel = async function(map_id, gate_id, onProgress = null, CustomPlaygroundTuner = null) {
     console.log(`Загрузка уровня (карты): ${map_id}...`);
-    await this.loadMap(map_id, onProgress);
+    await this.loadMap(map_id, onProgress, CustomPlaygroundTuner);
     //this.player = new Player(this.scene, new Vector3(0, 0, 0), { gameDataManager: this.gameDataManager, resourceLoader: this.resourceLoader } );
     const team = this.gameDataManager.team;
-    this.playground.instantiatePlayerTeam(team, gate_id);
+    await this.playground.instantiatePlayerTeam(team, gate_id);
     // if(this.playground.cameraMainLocation){ 
     //     this.app.cameras.setPosition(this.playground.cameraMainLocation.position);
     //     this.app.cameras.setTarget(Vector3.Zero());

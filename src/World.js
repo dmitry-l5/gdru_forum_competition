@@ -7,7 +7,7 @@ import { Pathfinder } from "./Pathfinder";
 import { Playground } from "./Playground";
 
 export function World(app, options){
-    const {gameDataManager} = options;
+    const {gameDataManager, playgroundConstructor} = options;
     this.app = app;
     this.gameDataManager = gameDataManager;
     this.currentMapMeta = null;
@@ -18,6 +18,7 @@ export function World(app, options){
     this.containers = {}; 
     this.pathfinder = null;
     this.playground = null; 
+    this.playgroundConstructor = playgroundConstructor || Playground;
     this.initPathfinder();
 }
 World.prototype = Object.create(null);
@@ -27,6 +28,9 @@ World.prototype.initPathfinder = async function() {
     this.pathfinder = new Pathfinder(this.app.scene);
     await this.pathfinder.init();
 };
+World.prototype.getRandomPointAround = function(vector, radius){
+    return this.pathfinder.getRandomPointAround(vector, radius);
+}
 
 World.prototype.loadTeamScreen = async function(onProgress = null){
     await this.loadMap(onProgress = null);
@@ -36,7 +40,7 @@ World.prototype.openShowcase = function(){
     
 }
 
-World.prototype.loadMap = async function(MAP_ID, onProgress = null){
+World.prototype.loadMap = async function(MAP_ID, onProgress = null, playgroundConstructor = null){
     console.log(`Попытка загрузки карты: ${MAP_ID}`);
     await this.flushMap();
     const mapMeta = MAPS_META[MAP_ID];
@@ -78,13 +82,14 @@ World.prototype.loadMap = async function(MAP_ID, onProgress = null){
             const light = new HemisphericLight("light", new Vector3(0, 1, 0), this.app.scene);
             this.lights.push(light);
         }
-        this.playground = new Playground(this, {
+        const constructor = playgroundConstructor || this.playgroundConstructor;
+        this.playground = new constructor(this, {
             pathfinder: this.pathfinder,
-            resourceLoader: this.resourceLoader
+            resourceLoader: this.app.resourceLoader
         });
         await this.playground.init(this.containers[MAP_ID]);
         await this.pathfinder.buildNavMesh(this.playground.navMeshFloor);
-        this.pathfinder.displayNavMesh();
+        // this.pathfinder.displayNavMesh();
         this.administerGameProcess();
     } catch (error) {
         console.error('Error loading map:', error);

@@ -1,4 +1,4 @@
-import { RecastJSPlugin } from "@babylonjs/core";
+import { RecastJSPlugin, Vector3 } from "@babylonjs/core";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -59,6 +59,11 @@ Pathfinder.prototype.findPath = function(startPoint, endPoint) {
         return null;
     }
 };
+
+Pathfinder.prototype.getRandomPointAround = function(vector, radius){
+    const point = this.navMeshPlugin.getRandomPointAround(vector, radius);
+    return point;
+}
 
 Pathfinder.prototype.reset = function() {
     if (this.navMeshPlugin) {

@@ -40,8 +40,8 @@ GameDataManager.prototype.initDevDataset = function(index){
             },
             team:{
                 [TEAM_SLOTS.MAIN]: UNITS_ID.KAIDEN,
-                // [TEAM_SLOTS.SECOND]: UNITS_ID.KAIDEN,
-                // [TEAM_SLOTS.THIRD]: UNITS_ID.KAIDEN,
+                [TEAM_SLOTS.SECOND]: UNITS_ID.RANGER_FOX,
+                [TEAM_SLOTS.THIRD]: UNITS_ID.ARIANA,
             }
 
         },

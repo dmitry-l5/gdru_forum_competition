@@ -3,11 +3,10 @@ import { Vector3 } from "@babylonjs/core";
 import { BOT_FACTORY } from "./tuneup/bots/bot_factory";
 import { PlaygroundBotBehaviorMixin } from "./tuneup/mixins/PlaygroundBotBehaviorMixin";
 import { CombatManager } from "./CombatManager";
-import { BEHAVIORS } from "./tuneup/common_const";
+
 import { PlaygroundActionsMixin } from "./tuneup/mixins/PlaygroundActionsMixin";
 import { TEAM_SLOTS } from "./tuneup/teams_const";
-import { UNITS_META } from "./tuneup/units/units_const";
-import { UnitFactory } from "./tuneup/units/UnitFactory";
+
 
 export function Playground(world, options) {
     const { pathfinder, resourceLoader } = options;
@@ -25,8 +24,14 @@ export function Playground(world, options) {
     // this.shootPoints = [];
     // this.triggerPoints = [];
     this.bots = [];
-    // this.neutrals = []; 
-    // this.projectiles = [];
+    this.neutrals = []; 
+    this.projectiles = [];
+    this.playerTeam = {
+        [TEAM_SLOTS.MAIN]:null,
+        [TEAM_SLOTS.SECOND]:null,
+        [TEAM_SLOTS.THIRD]:null,
+    };
+    this.selectedUnit = null;
     this.isLoaded = false;
 
     Object.assign(this, PlaygroundTagsMixin);
@@ -62,47 +67,27 @@ Playground.prototype.init = async function(asset) {
     //  console.log("Playground: Уровень успешно инициализирован.");
 };
 
-Playground.prototype.handleSpawnPoints = function(spawn_points){
-    const playerPosition = this.world.player.root.position;
-    spawn_points.forEach(point => {
-        if( !point.inProgress &&
-            point.isEnabled?.() &&
-            Vector3.Distance(playerPosition, point.location) <= point.radius
-        ) {
-                this.spawnBot(point);
-                point.resetEnable();
-        }
-    });
-}
-
-Playground.prototype.instantiatePlayerTeam = async function(options = {}){
-    const {gate = null} = options;
-    const playerData = this.app.gameDataManager.playerStatsManager;
-    const team = playerData.team;
-    const meta_main = UNITS_META[this.app.gameDataManager.team[TEAM_SLOTS.MAIN]];
-    
-    const gate_position = this.gates[meta_main.gates]??Vector3.Zero();
-    const main_unit =  UnitFactory.build( this.app.gameDataManager.team[TEAM_SLOTS.MAIN], {metadata:meta_main, position: Vector3.Zero()}, this.resourceLoader, this.scene)
-    .then((char)=>{
-        char.position = gate_position;
-    });
-    // main_unit.position = meta_main.gate
-    // this.bots.push(
-    //     new (team[TEAM_SLOTS.MAIN].type)({"":""})
-    // )
-
+Playground.prototype.customLogic = function(deltaTime){
+    //Mast be overwrite
 }
 
 Playground.prototype.update = function(deltaTime) {
     if(!deltaTime)
         deltaTime = this.app.engine.getDeltaTime() / 1000.0;
+    this.customLogic(deltaTime);
+
     // if (!this.world.player || this.isLoaded === false) return;
     // this.handleSpawnPoints(this.spawnPoints);
 
     // const target = this.world.player;
     // // bot.update();
     // this.combatManager.update(deltaTime);
-    // this.bots.forEach(bot => {
+    Object.values(this.playerTeam).forEach(unit => {
+    if (unit) { 
+        unit.update(deltaTime);
+    }
+});
+    this.bots.forEach(bot => {
     //     if (bot.inCombat === false){
     //         if (bot.seesTarget(target.root.position)) {
     //             this.combatManager.addBotToCombat(bot, target);
@@ -110,65 +95,10 @@ Playground.prototype.update = function(deltaTime) {
     //             bot.setBehavior(BEHAVIORS.IDLE);
     //         }
     //     }
-    //     bot.update(deltaTime);
-    // });
+        bot.update(deltaTime);
+    });
 };
 
-Playground.prototype.spawnBot = async function(point) {
-    point.inProgress = true;
-    try{
-        if (!point.spawnedBot || point.spawnedBot.isDead) {
-            const botType = point.botType;
-            const constructor = BOT_FACTORY[botType];
-            if (!constructor) {
-                //  console.error(`Playground: Неизвестный тип бота: "${botType}". Спавн отменен.`);
-                return;
-            }
-            const bot = new constructor(this.scene, point.location, {
-                resourceLoader: this.resourceLoader,
-                world: this.world,
-                pathfinder: this.pathfinder,
-                playground: this,
-                playgroundActionCallback: this.handlePlaygroundAction.bind(this),
-                sightRadius: 20,
-                pursuitRange: 25,
-                stopPursuitRange: 30,
-                // [ATTACK_TYPE.MELEE]: true,
-                // meleeAttackDistance: 3,
-                // [ATTACK_TYPE.RANGED]: true,
-                // rangedAttackDistance: 10,
-                // preferredAttack: ATTACK_TYPE.MELEE,
-                // projectileType: PROJECTILE_TYPE.DEFAULT
-            });
-            await bot.init();
-            this.bots.push(bot);
-            point.spawnedBot = bot;
-
-            point.isTriggered = true;
-            point.lastTriggerTime = Date.now();
-            //  console.log(`Playground: Бот типа "${botType}" создан.`);
-        }
-    } catch(error) {
-         console.error("Ошибка при спавне бота:", error);
-    } finally {
-        point.isSpawning = false;
-    }
-};
-
-
-Playground.prototype.handleTriggerAction = function(trigger) {
-    switch(trigger.action) {
-        case 'open_door':
-            // Логика открытия двери
-            break;
-        case 'play_audio':
-            // Логика проигрывания звука
-            break;
-        default:
-            //  console.warn(`Неизвестное действие триггера: ${trigger.action}`);
-            break;
-    }
-};
 
 
 

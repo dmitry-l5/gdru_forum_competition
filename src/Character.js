@@ -24,7 +24,7 @@ export function Character(scene, position, options) {
         maxHealth: 100,
         energy: 100,
         maxEnergy: 100,
-        speed: 1,
+        speed: 10,
     };
 
 

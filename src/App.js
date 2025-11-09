@@ -141,7 +141,8 @@ App.prototype.start = async function(){
 App.prototype.uiHandler = function(type, detail){
     const handler = this.uiEventHandlers?.[type];
     if (handler) {
-        handler.call(this, detail);
+        handler(detail);
+        // handler.call(this, detail);
     } else {
         console.warn(`Unhandled UI event type: ${type}`, detail);
     }
