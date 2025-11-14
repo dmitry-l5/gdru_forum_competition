@@ -18,19 +18,17 @@ PlaygroundActionsMixin.handlePlaygroundAction = function(action_const, options) 
 };
 
 PlaygroundActionsMixin.handleMeleeAttack = function(options) {
-    const { position, direction, shape, range, angle, excludedTarget, damage } = options;
-
+    const { position, direction, shape, range, angle, excludedGroup, damage } = options;
     console.warn('THIS IS MELEE ATTACK!');
-    const targetsInArea = this.findTargetsInArea({ 
-        position, 
+    const targetsInArea = this.targetsOnArea(position, { 
         direction, 
         shape, 
         range, 
         angle,
-        excludedTarget
+        excludedGroup
     });
 
     for (const target of targetsInArea) {
-        target.takeDamage(damage, excludedTarget);
+        target.takeDamage(damage);
     }
 };

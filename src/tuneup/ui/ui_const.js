@@ -20,6 +20,11 @@ export const UI_EVENTS = {
     GO_TO_MAP:'go_to_map',
     DEBUG_DATASET:'debug_dataset',
     HERO_BUTTON:'hero_btn',
+    HERO_SINGLE_SELECT:'hero_single_select',
+    HERO_ADD_SELECT:'hero_add_select',
+    HERO_REMOVE_SELECT:'hero_remove_select',
+    UPDATE_TEAM_DATA:'update_team_data',
+    HERO_TOGGLE_SELECT:'hero_toogle_select',
 }
 
 
@@ -40,12 +45,17 @@ export const UI_COLORS = {
     BUTTON_HOVER:       '#3F007F', 
     BUTTON_TEXT:        '#F0F8FF',
     BUTTON_BORDER:      '#FF00CC',
-
+    BUTTON_BORDER_SELECTED : 
+                        '#FFFF00',
+    BUTTON_BORDER_DEFAULT : 
+                        '#000000',
+                        
     STATUS_HEALTH:      '#00FF00', 
     STATUS_CRITICAL:    '#FF3300', 
     STATUS_WARNING:     '#CCFF00',
     
     CLASS_DAMAGE:       '#FF0066', 
     CLASS_TANK:         '#00BFFF', 
-    CLASS_SUPPORT:      '#00CED1', 
+    CLASS_SUPPORT:      '#00CED1',
+
 };

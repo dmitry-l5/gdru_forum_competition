@@ -10,7 +10,7 @@ import { MainTeamLayout } from "../ui/team_menus/MainTeamLayout";
 import { FirstHeroSelectLayout } from "../ui/team_menus/FirstHeroSelectLayout";
 import { UNITS_ID, UNITS_META } from "../units/units_const";
 import { TEAM_SLOTS } from "../teams_const";
-import { Inspector } from "@babylonjs/inspector";
+// import { Inspector } from "@babylonjs/inspector";
 
 export const AppCreateShowcaseMixin = {
   resourceLoader: new ResourceLoader(),

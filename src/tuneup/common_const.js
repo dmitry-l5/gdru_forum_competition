@@ -78,4 +78,5 @@ export const BEHAVIORS = {
     FOLLOW_PATH: 'follow_the_path',
     COMBAT:'combat',
     MELEE: 'melee',
+    DEAD:'dead',
 }

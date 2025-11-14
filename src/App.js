@@ -18,9 +18,9 @@ import { GameDataManager } from "./GameDataManager";
 import { InputManager } from "./InputManager";
 import { MAPS_ID } from "./tuneup/maps_const";
 import { LayoutUI } from "./LayoutUI";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { Inspector } from "@babylonjs/inspector";
-import { prototype } from "jszip";
+// import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+// import { Inspector } from "@babylonjs/inspector";
+// import { prototype } from "jszip";
 import { AppCreateShowcaseMixin } from "./tuneup/mixins/AppCreateShowcaseMixin";
 import { Color4, SceneLoader } from "@babylonjs/core";
 

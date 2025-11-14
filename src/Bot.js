@@ -22,7 +22,7 @@ import { MeleeState } from "./tuneup/bots/behaviors/MeleeState";
  * @param {number} [options.rangedAttackDistance] - Дистанция для дальней атаки.
  */
 export function Bot(scene, position, options) {
-    Character.call(this, scene, options);
+    Character.call(this, scene, position, options);
 
     this.root.name = 'bot.root';
     this.root.position = new Vector3(position.x, position.y, position.z);

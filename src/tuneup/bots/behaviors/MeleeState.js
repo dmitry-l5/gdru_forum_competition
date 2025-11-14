@@ -19,7 +19,10 @@ MeleeState.prototype.enter = function() {
         onLoopCallback:()=>{
             this.bot?.playgroundActionCallback( PLAYGROUND_ACTIONS.MELEE, {
                 position:this.bot.root.position,
-                diretion:this.bot.root.getDirection(Vector3.Forward())
+                direction:this.bot.root.getDirection(Vector3.Forward()),
+                range:10,
+                damage:10,
+                excludedGroup:this.bot.group,
             });
             console.warn('           attack            LOOP             demage');
             

@@ -5,6 +5,7 @@ import { UnitFactory } from "./units/UnitFactory";
 import { BEHAVIORS } from "./common_const";
 import { Vector3 } from "@babylonjs/core";
 import { BOT_FACTORY } from "./bots/bot_factory";
+import { UI_EVENTS } from "./ui/ui_const";
 
 export function PlaygroundTuner(world, options) {
     Playground.call(this, world, options); 
@@ -18,33 +19,39 @@ PlaygroundTuner.prototype.update = function(deltaTime){
 }
 
 PlaygroundTuner.prototype.customLogic = function(deltaTime){
-
+    // this.handleSpawnPoints?.(this.spawnPoints);
 }
 Playground.prototype.handleClick = function(pickResult){
     // debugger
-    let units;
-    let points = this._getTrianglePoints(pickResult.pickedPoint, 3);
-    if(this.selectedUnit){
-        units = [this.selectedUnit];
+    let unitsToMove;
+    const clickPoint = pickResult?.pickedPoint;
+    if(this.selectedUnits && this.selectedUnits.size > 0){
+        unitsToMove = Array.from(this.selectedUnits); 
     } else {
-         units = Object.values(this.playerTeam).filter(item => item);
+        unitsToMove = Object.values(this.playerTeam).filter(item => item);
     }
-
-    if (pickResult && units.length > 0) {
-        units.forEach((unit, index) => {
-            const path = this.pathfinder.findPath(unit.root.position, points[index]);
+    const points = this._getTrianglePoints(clickPoint, unitsToMove.length);
+    if (pickResult && clickPoint && unitsToMove.length > 0) {
+        unitsToMove.forEach((unit, index) => {
+            const targetPoint = points[index];
+            if (!targetPoint) {
+                console.warn(`Playground: Недостаточно точек для всех юнитов.`);
+                return;
+            }
+            const path = this.pathfinder.findPath(unit.root.position, targetPoint);
+            
             if (path && path.length > 0) {
                 unit.setPath(path);
-                unit.setBehavior(BEHAVIORS.FOLLOW_PATH);
-                console.log(`Playground: Юниту ${unit.root.name} назначен путь.`);
+                unit.setBehavior(BEHAVIORS.FOLLOW_PATH); 
+                console.log(`Playground: Юниту ${unit.root.name} назначен путь с ${path.length} точками.`);
             } else {
-                console.log(`Playground: Путь не найден для ${unit.root.name}.`);
+                console.log(`Playground: Путь не найден для ${unit.root.name} до ${targetPoint}.`);
                 unit.stopMoving();
             }
         });
     }
-    
 }
+
 PlaygroundTuner.prototype.spawnBot = async function(point) {
     point.inProgress = true;
     try{
@@ -86,25 +93,23 @@ PlaygroundTuner.prototype.spawnBot = async function(point) {
     }
 };
 
-PlaygroundTuner.prototype.handleSpawnPoints = function(spawn_points){
-    const playerPosition = this.world.player.root.position;
-    spawn_points.forEach(point => {
-        if( !point.inProgress &&
-            point.isEnabled?.() &&
-            Vector3.Distance(playerPosition, point.location) <= point.radius
-        ) {
-                this.spawnBot(point);
-                point.resetEnable();
-        }
-    });
-}
+// PlaygroundTuner.prototype.handleSpawnPoints = function(spawn_points){
+//     // const playerPosition = this.world.player.root.position;
+//     spawn_points.forEach(point => {
+//         if( !point.inProgress &&
+//             point.isEnabled?.() &&
+//             Vector3.Distance(playerPosition, point.location) <= point.radius
+//         ) {
+//                 this.spawnBot(point);
+//                 point.resetEnable();
+//         }
+//     });
+// }
 
-// PlaygroundTuner.js
 
 PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}){
     const {gate = null} = options;
     const team_data = this.app.gameDataManager.team;
-
     const main_unit_id = team_data[TEAM_SLOTS.MAIN];
     if (!main_unit_id) return; 
     const meta_main = UNITS_META[main_unit_id];
@@ -135,6 +140,7 @@ PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}){
         })
         .filter(p => p !== null);
     const results = await Promise.all(buildPromises);
+
     results.forEach(({ slot_id, char, target_position }) => {
         char.root.position.copyFrom(target_position); 
         this.playerTeam[slot_id] = char;
@@ -142,6 +148,8 @@ PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}){
             this.world.player = char; 
         }
     });
+    this.app.cameras.setTarget(this.playerTeam[TEAM_SLOTS.MAIN].root, true);
+
     Object.keys(this.playerTeam).forEach(slot_id => {
         if (!team_data[slot_id]) {
             // console.log(`Слот ${slot_id} пуст.`);
@@ -211,7 +219,88 @@ PlaygroundTuner.prototype._getTrianglePoints = function(center, radius = 1.0) {
     return points;
 };
 
-PlaygroundTuner.prototype.selectUnitFromSlot = function(slot_id){
+PlaygroundTuner.prototype.selectSingleUnit = function(slot_id){
     const unit = this.playerTeam[slot_id];
-    this.selectedUnit = unit;
+    if (!unit) {
+        this.selectedUnits.clear();
+        this.app.cameras.setTarget(null);
+        console.warn(`Playground: Слот ${slot_id} пуст. Выбор сброшен.`);
+        return;
+    }
+    this.selectedUnits.clear();
+    this.selectedUnits.add(unit);
+    // debugger;
+    this.app.cameras.setTarget(unit.root, true);
+    console.log(`Playground: Выбран единственный юнит: ${unit.root.name}`);
+}
+
+PlaygroundTuner.prototype.selecAddtUnit = function(slot_id){
+    const unit = this.playerTeam[slot_id];
+    if (!unit) {
+        console.warn(`Playground: Слот ${slot_id} пуст. Невозможно добавить.`);
+        return;
+    }
+    if (!this.selectedUnits.has(unit)) {
+        this.selectedUnits.add(unit);
+        this.app.cameras.setTarget(unit.root, true); 
+        console.log(`Playground: Юнит добавлен в выбор: ${unit.root.name}. Всего: ${this.selectedUnits.size}`);
+    } else {
+        console.log(`Playground: Юнит ${unit.root.name} уже выбран.`);
+    }
+}
+
+PlaygroundTuner.prototype.selectRemoveUnit = function(slot_id){
+    const unit = this.playerTeam[slot_id];
+    if (!unit) {
+        console.warn(`Playground: Слот ${slot_id} пуст. Нечего удалять.`);
+        return;
+    }
+    const wasDeleted = this.selectedUnits.delete(unit);
+    if (wasDeleted) {
+        console.log(`Playground: Юнит удален из выбора: ${unit.root.name}. Осталось: ${this.selectedUnits.size}`);
+        if (this.selectedUnits.size === 0) {
+            this.app.cameras.setTarget(null);
+            console.log('Playground: Выбор пуст. Камера сброшена.');
+        } else if (this.app.cameras.target === unit.root) {
+            const newTarget = this.selectedUnits.values().next().value;
+            this.app.cameras.setTarget(newTarget.root, false);
+            console.log(`Playground: Камера переключена на ${newTarget.root.name}.`);
+        }
+    } else {
+        console.log(`Playground: Юнит ${unit.root.name} не был выбран.`);
+    }
+}
+
+PlaygroundTuner.prototype.selectToggleUnit = function(slot_id){
+    const unit = this.playerTeam[slot_id];   
+    if (!unit) {
+        console.warn(`AppMapEvents: Слот ${slot_id} пуст. Нечего выбирать.`);
+        return;
+    }
+    if (this.selectedUnits.has(unit)) {
+        this.selectRemoveUnit(slot_id);
+        console.log(`AppMapEvents: Юнит в слоте ${slot_id} снят с выбора.`);
+    } else {
+        this.selecAddtUnit(slot_id); 
+        console.log(`AppMapEvents: Юнит в слоте ${slot_id} добавлен к выбору.`);
+    }
+    this._reloadTeamPanels();
+}
+PlaygroundTuner.prototype._reloadTeamPanels = function(){
+    const team_data = this._collectSelectedUnitData();
+    this.app.uiHandler(
+        UI_EVENTS.UPDATE_TEAM_DATA,
+        {
+            data:team_data,
+        }
+    )
+}
+PlaygroundTuner.prototype._collectSelectedUnitData = function(){
+    const data = {};
+    Object.entries(this.playerTeam).forEach(([key, value])=>{
+        if(this.selectedUnits.has(value)){
+            data[key] = value.getInfo();
+        }        
+    });
+    return data;
 }

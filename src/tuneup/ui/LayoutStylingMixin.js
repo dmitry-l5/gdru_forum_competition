@@ -9,7 +9,7 @@ LayoutStylingMixin.defaultButtonStyling = function(button, options = {}){
         throw new Error("Styling default button fail");
         return;
     }
-    const keys = ['left', 'top', 'width', 'height'];
+    const keys = ['left', 'top', 'width', 'height', 'thickness'];
     const validProps = keys.reduce((acc, key) => {
         if (options[key] !== undefined) {
             acc[key] = options[key];

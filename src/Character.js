@@ -6,6 +6,7 @@ import { IdleState } from "./tuneup/bots/behaviors/IdleState";
 import { TacticalCombatState } from "./tuneup/bots/behaviors/TacticalCombatState";
 import { FollowPathState } from "./tuneup/bots/behaviors/FollowPathState";
 import { State } from "./tuneup/bots/behaviors/State";
+import { CommonActions, UNIT_ACTIONS } from "./tuneup/units/uniit_state_const";
 
 export function Character(scene, position, options) {
     const {resourceLoader} = options;
@@ -26,6 +27,12 @@ export function Character(scene, position, options) {
         maxEnergy: 100,
         speed: 10,
     };
+
+    this.state = {
+        commands:{
+            ...CommonActions,
+        }
+    }
 
 
 
@@ -412,4 +419,65 @@ Character.prototype.dispose = function() {
         this.animator.dispose();
     }
     //  console.log(`${this.constructor.name} ${this.root?.name} disposed.`);
+};
+
+Character.prototype.getInfo = function(){
+    return {
+        unitId: this.unitId,
+        name: this.name || this.root.name,
+        
+        health: this.stats.health,
+        maxHealth: this.stats.maxHealth,
+        energy: this.stats.energy,
+        maxEnergy: this.stats.maxEnergy,
+        status: this.currentBehavior?.constructor.name || 'IDLE', 
+        
+        availableActions: this.getAvailableActions(),
+        
+        isDead: this.stats.health <= 0,
+    };
+}
+
+Character.prototype.getAvailableActions = function() {
+    const availableActions = new Set([...CommonActions]);
+
+    if (this.stats.health <= 0) {
+        availableActions.clear();
+        return Array.from(availableActions);
+    }
+
+    if (this.currentBehavior?.constructor.name === 'IdleState') {
+        availableActions.delete(UNIT_ACTIONS.WAIT);
+    }
+    return Array.from(availableActions); 
+};
+
+Character.prototype.takeDamage = function(amount = 0, attacker = null){
+    this.changeHealth(-amount); 
+    console.log(`${this.root.name} took ${amount} damage.`);
+}
+
+Character.prototype.die = function() {
+    if (this.isDead) {
+        return; 
+    }
+    
+    this.isDead = true;
+    console.log(`${this.root.name} died!`);
+
+    // 1. Запустить анимацию смерти
+    this.animator.play(ANIMATOR_STATE.DEATH, { loop: false, onEndCallback: () => {
+        // Опционально: удалить меш или начать растворение после завершения анимации
+        // this.dispose(); 
+    }});
+
+    // 2. Сбросить текущее поведение
+    this.setBehavior(BEHAVIORS.DEAD); // Можно использовать специальное поведение DEAD
+    // Или просто установить Idle, если нет специального:
+    // this.setBehavior(BEHAVIORS.IDLE);
+
+    // 3. Уведомление Playground/World (если требуется):
+    // Здесь может быть вызов колбэка для оповещения игровой сцены о том, 
+    // что юнит мертв, и его нужно исключить из расчетов (например, из this.bots).
+    // this.onDeathObservable.notifyObservers(this); 
 };

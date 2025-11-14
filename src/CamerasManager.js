@@ -15,22 +15,32 @@ export function CamerasManager(inputManager, app){
     this.TARGET_HEIGHT_UNITS = 30;
     this.defaultCamera.attachControl(this.app.canvas, true);
     this._updateOrthographicCamera();
-
+    
     this.lock = false
     this.target = null;
     this.rotationSensitivity = 0.00;
     this.swipeAreaHorizontalShare = 0.5; 
-
+    
     this._setupInputHandlers();
-
-    this.beforeRender = this.app.scene.onBeforeRenderObservable.add(()=>{
-        if(!this.lock || !(this.target instanceof TransformNode) ){
-            return;
-        }
-        let deltaTime = this.app.engine.getDeltaTime() / 1000;
-        let position = Vector3.Lerp(this.defaultCamera.target, this.target.absolutePosition, this.transitionSpeed*Math.min(deltaTime * 2, 1));
-        this.defaultCamera.setTarget(position);
-    });
+    
+    this.transitionSpeed = 1;
+    this.cameraOnMapOffset = new Vector3(10, 15, 10);
+    this._desiredPosition = new Vector3();
+this.beforeRender = this.app.scene.onBeforeRenderObservable.add(()=>{
+    if(!this.lock || !(this.target instanceof TransformNode) ){
+        return;
+    }
+    
+    // debugger
+    const deltaTime = this.app.engine.getDeltaTime() / 1000;
+    this.target.absolutePosition.addToRef(this.cameraOnMapOffset, this._desiredPosition); 
+    Vector3.LerpToRef(
+        this.defaultCamera.position,
+        this._desiredPosition,
+        this.transitionSpeed * Math.min(deltaTime * 2, 1),
+        this.defaultCamera.position
+    );
+});
 }
 
 CamerasManager.prototype = Object.create(null);

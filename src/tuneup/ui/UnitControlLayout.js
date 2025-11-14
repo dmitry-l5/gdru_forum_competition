@@ -9,10 +9,10 @@ import { TEXT_KEYS } from "../local/keys_const";
 import { LANGS } from "../common_const";
 import { LayoutStylingMixin } from "./LayoutStylingMixin";
 import { TEAM_SLOTS } from "../teams_const";
-import { UI_COLORS, UI_EVENTS } from "./ui_const";
+import { UI_EVENTS } from "./ui_const";
 import { prototype } from "jszip";
 
-export function MapLayout(ADTexture, resourceLoader, polylang, gameData, uiHandler){
+export function UnitControlLayout(ADTexture, resourceLoader, polylang, gameData, uiHandler){
     this.gameData = gameData;
     LayoutUI.call(this, ADTexture, resourceLoader, polylang, gameData, uiHandler);
     Object.assign(this, LayoutStylingMixin);
@@ -23,27 +23,25 @@ export function MapLayout(ADTexture, resourceLoader, polylang, gameData, uiHandl
     }
 }
 
-MapLayout.prototype = Object.create(LayoutUI.prototype);
-MapLayout.prototype.constructor = MapLayout;
-MapLayout.prototype.create = async function(){
+UnitControlLayout.prototype = Object.create(LayoutUI.prototype);
+UnitControlLayout.prototype.constructor = UnitControlLayout;
+UnitControlLayout.prototype.create = async function(){
     this.container.height = '100%';
     this.container.width = '100%';
     this.container.isHitTestVisible = false;
     this.container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;;
     this.container.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;;
-    this.container.background = "transparent";
-    const exit_btn = this.createExitButton();
-    const heroes_panel = this.createHeroesPanel();
+    this.container.background = "yellow";
     const control_panel = this.createControlPanel();
 
 
     this.container.addControl(heroes_panel);
-    // this.container.addControl(control_panel);
+    this.container.addControl(control_panel);
     this.container.addControl(exit_btn);
     this.update();
 }
 
-MapLayout.prototype.createExitButton = function(){
+UnitControlLayout.prototype.createExitButton = function(){
     const close_btn = Button.CreateSimpleButton('exit', this.polylang.t(TEXT_KEYS.EXIT))
     this.registerText( TEXT_KEYS.EXIT, close_btn.textBlock );
     close_btn.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
@@ -51,7 +49,7 @@ MapLayout.prototype.createExitButton = function(){
     this.defaultButtonStyling(close_btn, {left: '-250px', top:'10px', width:'250px', height:'72px'});
     return close_btn;
 }
-MapLayout.prototype.createHeroesPanel = function(){
+UnitControlLayout.prototype.createHeroesPanel = function(){
     const container = new Container('heroes_panel');
     const size_btn = 150;
     let index = 0;
@@ -73,7 +71,7 @@ MapLayout.prototype.createHeroesPanel = function(){
     return container;
 }
 
-MapLayout.prototype.createHeroButton = function(title, id, size = 50){
+UnitControlLayout.prototype.createHeroButton = function(title, id, size = 50){
     const btn = Button.CreateSimpleButton(id, title);
     btn.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     btn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -82,27 +80,25 @@ MapLayout.prototype.createHeroButton = function(title, id, size = 50){
 
     btn.onPointerClickObservable.add(()=>{
         this.uiCommandsListener?.(
-            // UI_EVENTS.HERO_SINGLE_SELECT,
-            UI_EVENTS.HERO_TOGGLE_SELECT,
+            UI_EVENTS.HERO_SINGLE_SELECT,
             {slot_id: id}
         )
     });
-    this.items[`hero_btn_${id}`] = btn;
 
     return btn;
 }
-MapLayout.prototype.resize = function(size = 1){
+UnitControlLayout.prototype.resize = function(size = 1){
     return;
 }
 
-MapLayout.prototype.update = function(){
+UnitControlLayout.prototype.update = function(){
     return;
 }
-MapLayout.prototype.reloadControldPanel = function(description){
+UnitControlLayout.prototype.reloadControldPanel = function(description){
 
 }
 
-MapLayout.prototype.createControlPanel = function(){
+UnitControlLayout.prototype.createControlPanel = function(){
     const container = new Container('control_panel');
     container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
     container.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
@@ -112,26 +108,10 @@ MapLayout.prototype.createControlPanel = function(){
     container.height = '250px';
     container.background = 'orange';
 
-
+    
 
     return container;
 }
-MapLayout.prototype.openControlPanel = function(){
+UnitControlLayout.prototype.openControlPanel = function(){
 
 }
-
-MapLayout.prototype.updateTeamPanel = function(selectedUnitsData) {
-    const selectedSlotIds = new Set(Object.keys(selectedUnitsData));
-    const BORDER_WIDTH = 5;
-    Object.entries(TEAM_SLOTS).forEach(([key, slotId]) => {
-        const button = this.items[`hero_btn_${slotId}`];
-        if (!button) return;
-        if (selectedSlotIds.has(slotId)) {
-            button.color = UI_COLORS.BUTTON_BORDER_SELECTED;
-            button.thickness = BORDER_WIDTH;
-        } else {
-            this.defaultButtonStyling(button, {thickness:1});
-            button.textBlock.fontSize = 24;
-        }
-    });
-};
