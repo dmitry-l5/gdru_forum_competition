@@ -43,29 +43,44 @@ CombatManager.prototype.removeBotFromCombat = function(bot) {
 };
 
 CombatManager.prototype.evaluateStrategies = function(options) {
-    const { player } = options;
-    for( const bot of this.activeBots){
+    const livingPlayerUnits = Object.values(this.playground.playerTeam)
+        .filter(unit => unit && unit.stats?.health > 0);
+    for (const bot of this.activeBots) {
+        let currentTarget = bot.target;
         if (this.activeTasks.has(bot)){
-            if(this.activeTasks.get(bot).isCompleted){
+            const activeTask = this.activeTasks.get(bot);
 
-                this.activeTasks.get(bot)?.dispatch?.();
+            if(activeTask.isCompleted){
+                activeTask?.dispatch?.();
                 this.activeTasks.delete(bot);
             }
-            if(true || ( this.activeTasks.get(bot)?.pathRequest && player ) ) {
-                const path =  this.playground.world.pathfinder.findPath(bot.root.position, player.root.position);
+            else if (currentTarget) { 
+                const path = this.playground.world.pathfinder.findPath(bot.root.position, currentTarget.root.position);
                 bot.setPath(path);
             }
-            if(!this.activeTasks.get(bot)?.breakCondition()) {
-                continue;
+            if(!activeTask.breakCondition()) {
+                continue; 
             }
         }
-        if( bot.favoriteAttackType &&
-            bot.favoriteAttackType === ATTACK_TYPE.MELEE &&
-            bot.seesTarget(player.root.position)
-        ){
-            bot.setTarget(player);
-            const oppa =  this.tactics[TACTICS.CHASE_AND_BEAT]({ bot: bot, target: player});
-            this.assignTask(bot, this.tactics[TACTICS.CHASE_AND_BEAT]({ bot: bot, target: player}));
+        let closestTarget = null;
+        let minDistanceSq = Infinity;
+        livingPlayerUnits.forEach(unit => {
+            const distanceSq = Vector3.DistanceSquared(bot.root.position, unit.root.position);
+            
+            if (distanceSq < minDistanceSq) {
+                minDistanceSq = distanceSq;
+                closestTarget = unit;
+            }
+        });
+        if (closestTarget) {
+            if (bot.favoriteAttackType &&
+                bot.favoriteAttackType === ATTACK_TYPE.MELEE &&
+                bot.seesTarget(closestTarget.root.position)
+            ){
+                bot.setTarget(closestTarget); 
+                const task = this.tactics[TACTICS.CHASE_AND_BEAT]({ bot: bot, target: closestTarget});
+                this.assignTask(bot, task);
+            }
         }
     }
 };
@@ -77,27 +92,34 @@ CombatManager.prototype.assignTask = function(bot, task) {
 };
 
 CombatManager.prototype.update = function(deltaTime) {
-    const player = this.playground.world.player;
-    if (!player) return;
-
+    const livingPlayerUnits = Object.values(this.playground.playerTeam)
+        .filter(unit => unit && unit.stats?.health > 0);
+    if (livingPlayerUnits.length === 0) {
+        for (const bot of [...this.activeBots]) {
+             this.removeBotFromCombat(bot);
+        }
+        return;
+    }
     for (const bot of this.activeBots) {
         if (bot.isDead) {
             this.removeBotFromCombat(bot);
             continue;
         }
-        const distanceToPlayer = Vector3.Distance(bot.root.position, player.root.position);
-        if (distanceToPlayer > bot.stopPursuitRange) {
+        let minDistanceSq = Infinity;
+        let isTargetInRange = false;
+        livingPlayerUnits.forEach(unit => {
+            const distanceSq = Vector3.DistanceSquared(bot.root.position, unit.root.position);
+            minDistanceSq = Math.min(minDistanceSq, distanceSq);
+        });
+        const minDistance = Math.sqrt(minDistanceSq);
+        if (minDistance > bot.stopPursuitRange) {
             this.removeBotFromCombat(bot);
             continue;
         }
-        if (!bot.target) {
-            this.removeBotFromCombat(bot);
-        }
     }
-    this.evaluateStrategies({ player: player});
+    this.evaluateStrategies(); 
 
     for(const [bot, task] of this.activeTasks){
-        // debugger;
         task.run(deltaTime);
     }
 }

@@ -30,6 +30,7 @@ PlaygroundAttackAreaMixin.targetsOnArea = function(position, options) {
     
     // 1. Сбор всех потенциальных живых юнитов в мире (боты + юниты игрока)
     let allUnits = [];
+    const test = Object.values(this.playerTeam);
     Object.values(this.playerTeam).forEach(unit => {
         if (unit && unit.stats?.health > 0 && unit.group !== excludedGroup) {
             allUnits.push(unit);

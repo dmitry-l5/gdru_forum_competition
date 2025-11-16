@@ -75,59 +75,57 @@ Character.prototype.seesTarget = function(target_position = null){
         return Vector3.Distance(this.root.position, this.target.root.position) < this.sightRadius;
     }
     return false;
-    
 }
 
-Bot.prototype.performAttack = function(targetPosition, options) {
-    if (this.isDead) return;
-    console.log(`Bot - ${this.constructor.name} - perform attack`);
+// Bot.prototype.performAttack = function(targetPosition, options) {
+//     if (this.isDead) return;
+//     console.log(`Bot - ${this.constructor.name} - perform attack`);
     
 
-    const { distance, attackType } = options;
-    const directionToTarget = targetPosition.subtract(this.root.position).normalize();
-    const targetRotation = Quaternion.FromLookDirectionRH(directionToTarget, Vector3.Up());
-    this.root.rotationQuaternion = Quaternion.Slerp(this.root.rotationQuaternion || Quaternion.Identity(), targetRotation, 0.2);
+//     const { distance, attackType } = options;
+//     const directionToTarget = targetPosition.subtract(this.root.position).normalize();
+//     const targetRotation = Quaternion.FromLookDirectionRH(directionToTarget, Vector3.Up());
+//     this.root.rotationQuaternion = Quaternion.Slerp(this.root.rotationQuaternion || Quaternion.Identity(), targetRotation, 0.2);
 
-    if (attackType === ATTACK_TYPE.RANGED) {
-        this.setBehavior(BEHAVIORS.ATTACK);
-        // this.changeState(ANIMATOR_STATE.ATTACK); 
-        if (this.playgroundActionCallback) {
-            const projectileDirection = targetPosition.subtract(this.root.position).normalize();
-            this.playgroundActionCallback(
-                PLAYGROUND_ACTIONS.CREATE_PROJECTILE,
-                {
-                    type: this.projectileType,
-                    position: this.root.position.add(new Vector3(0, 2, 0)),
-                    direction: projectileDirection,
-                    owner: this
-                }
-            );
-        }
-    } else if (attackType === ATTACK_TYPE.MELEE) {
-        this.setBehavior(BEHAVIORS.ATTACK);
+//     if (attackType === ATTACK_TYPE.RANGED) {
+//         this.setBehavior(BEHAVIORS.ATTACK);
+//         // this.changeState(ANIMATOR_STATE.ATTACK); 
+//         if (this.playgroundActionCallback) {
+//             const projectileDirection = targetPosition.subtract(this.root.position).normalize();
+//             this.playgroundActionCallback(
+//                 PLAYGROUND_ACTIONS.CREATE_PROJECTILE,
+//                 {
+//                     type: this.projectileType,
+//                     position: this.root.position.add(new Vector3(0, 2, 0)),
+//                     direction: projectileDirection,
+//                     owner: this
+//                 }
+//             );
+//         }
+//     } else if (attackType === ATTACK_TYPE.MELEE) {
+//         this.setBehavior(BEHAVIORS.ATTACK);
 
-        // this.changeState(ANIMATOR_STATE.ATTACK); 
-        // this.animator?.attack?.(); 
-        // this.animator?.punch?.(); 
+//         // this.changeState(ANIMATOR_STATE.ATTACK); 
+//         // this.animator?.attack?.(); 
+//         // this.animator?.punch?.(); 
 
-    } else {
-        //  console.warn(`Bot::performAttack - Неизвестный или необработанный тип атаки: ${attackType}`);
-    }
-};
+//     } else {
+//         //  console.warn(`Bot::performAttack - Неизвестный или необработанный тип атаки: ${attackType}`);
+//     }
+// };
 
-Bot.prototype.moveTo = function(targetPosition, deltaTime) {
-    this.move(targetPosition.subtract(this.root.position), this.stats.speed, deltaTime);    
-};
+// Bot.prototype.moveTo = function(targetPosition, deltaTime) {
+//     this.move(targetPosition.subtract(this.root.position), this.stats.speed, deltaTime);    
+// };
 
-Bot.prototype.performAttack = function(options) {
-    const { attackType = ATTACK_TYPE.MELEE } = options;    
-    console.log(`Бот ${this.root.name} выполняет атаку типа ${attackType}.`);
+// Bot.prototype.performAttack = function(options) {
+//     const { attackType = ATTACK_TYPE.MELEE } = options;    
+//     console.log(`Бот ${this.root.name} выполняет атаку типа ${attackType}.`);
+//     this.animator.play(ANIMATOR_STATE.ATTACK, { loop: false, onEndCallback: () => this.animator.play(ANIMATOR_STATE.IDLE) });
+// };
 
-    this.animator.play(ANIMATOR_STATE.ATTACK, { loop: false, onEndCallback: () => this.animator.play(ANIMATOR_STATE.IDLE) });
-};
-
-Bot.prototype.performSpecialAttack = function(options) {
-    const { attackType = ATTACK_TYPE.MELEE } = options;    
-    console.log(`Бот ${this.root.name} выполняет специальную атаку типа ${attackType}.`);
-    this.animator.play(ANIMATOR_STATE.ATTACK_PUNCH, { loop: false, onEndCallback: () => this.animator.play(ANIMATOR_STATE.IDLE) });
-};
+// Bot.prototype.performSpecialAttack = function(options) {
+//     const { attackType = ATTACK_TYPE.MELEE } = options;    
+//     console.log(`Бот ${this.root.name} выполняет специальную атаку типа ${attackType}.`);
+//     this.animator.play(ANIMATOR_STATE.ATTACK_PUNCH, { loop: false, onEndCallback: () => this.animator.play(ANIMATOR_STATE.IDLE) });
+// };

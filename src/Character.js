@@ -7,6 +7,7 @@ import { TacticalCombatState } from "./tuneup/bots/behaviors/TacticalCombatState
 import { FollowPathState } from "./tuneup/bots/behaviors/FollowPathState";
 import { State } from "./tuneup/bots/behaviors/State";
 import { CommonActions, UNIT_ACTIONS } from "./tuneup/units/uniit_state_const";
+import { DeadState } from "./tuneup/bots/behaviors/ImmortalDeadState";
 
 export function Character(scene, position, options) {
     const {resourceLoader} = options;
@@ -20,6 +21,7 @@ export function Character(scene, position, options) {
     this.root.scaling = Vector3.One();
     this.root.rotationQuaternion = Quaternion.Identity(); 
     this.root.position = position;
+    this.root.metadata = { unit: this };
     this.stats = {
         health: 100,
         maxHealth: 100,
@@ -33,7 +35,8 @@ export function Character(scene, position, options) {
             ...CommonActions,
         }
     }
-
+    this.onDeathObservable = null;
+    this.onDamageObservable = null;
 
 
 
@@ -72,6 +75,8 @@ export function Character(scene, position, options) {
     this.behaviors = {
         [BEHAVIORS.IDLE]: IdleState,
         [BEHAVIORS.FOLLOW_PATH]: FollowPathState,
+        [BEHAVIORS.DEAD]: DeadState,
+
         // ... .
     };
     Object.defineProperty(this, 'position', {
@@ -207,6 +212,7 @@ Character.prototype.loadModel = async function(modelId) {
             base.parent = this.root;
             base.scaling = Vector3.One();
             base.rotation = this.rotationCorrection;
+            
         }
         // this.animator.init(this.meshes, this.animationGroups);
         // this.animator.idle();
@@ -250,7 +256,7 @@ Character.prototype.isPathOutdated = function(targetPosition) {
     return isPositionOutdated;
 };
 
-Character.prototype.move = function(direction, speed, deltaTime) {
+Character.prototype._move = function(direction, speed, deltaTime) {
     if (this.isDead) return;
     if (direction.lengthSquared() < 0.0001) {
         // this.stopMoving();
@@ -384,10 +390,10 @@ Character.prototype.followPathBehavior = function(deltaTime){
         }
         const nextWaypoint = this._path[this._currentWaypointIndex];
         const direction = nextWaypoint.subtract(this.root.position).normalize();
-        this.move(direction, this.stats.speed, deltaTime);
+        this._move(direction, this.stats.speed, deltaTime);
     } else {
         const direction = targetWaypoint.subtract(this.root.position);
-        this.move(direction, this.stats.speed, deltaTime);
+        this._move(direction, this.stats.speed, deltaTime);
     }
 }
 
@@ -455,29 +461,29 @@ Character.prototype.getAvailableActions = function() {
 Character.prototype.takeDamage = function(amount = 0, attacker = null){
     this.changeHealth(-amount); 
     console.log(`${this.root.name} took ${amount} damage.`);
+    // debugger
+    this.onDamageObservable?.notifyObservers?.({unit:this, attacker:attacker});
 }
 
 Character.prototype.die = function() {
     if (this.isDead) {
         return; 
     }
-    
+    // if (this.root && this.root.metadata) {
+    //     this.root.metadata.unit = null;
+    // }
     this.isDead = true;
     console.log(`${this.root.name} died!`);
 
-    // 1. Запустить анимацию смерти
-    this.animator.play(ANIMATOR_STATE.DEATH, { loop: false, onEndCallback: () => {
-        // Опционально: удалить меш или начать растворение после завершения анимации
-        // this.dispose(); 
-    }});
 
-    // 2. Сбросить текущее поведение
-    this.setBehavior(BEHAVIORS.DEAD); // Можно использовать специальное поведение DEAD
-    // Или просто установить Idle, если нет специального:
-    // this.setBehavior(BEHAVIORS.IDLE);
-
-    // 3. Уведомление Playground/World (если требуется):
-    // Здесь может быть вызов колбэка для оповещения игровой сцены о том, 
-    // что юнит мертв, и его нужно исключить из расчетов (например, из this.bots).
-    // this.onDeathObservable.notifyObservers(this); 
+    // this.animator.play(ANIMATOR_STATE.DEATH, { loop: false, onEndCallback: () => {
+    //     // this.dispose(); 
+    // }});
+    if(this.isImmortal){
+        this.setBehavior(BEHAVIORS.IMMORTAL_DEAD);
+    }else{
+        this.setBehavior(BEHAVIORS.DEAD);
+    }
+    this.onDeathObservable?.notifyObservers?.({unit: this}); 
 };
+

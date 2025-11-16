@@ -6,6 +6,7 @@ export const LANGS = {
 
 export const CHAR_GROUPS = {
     BOT: 'bot',
+    PLAYER: 'player',
 }
 
 export const ATTACK_TYPE = {
@@ -79,4 +80,5 @@ export const BEHAVIORS = {
     COMBAT:'combat',
     MELEE: 'melee',
     DEAD:'dead',
+    IMMORTAL_DEAD:'immortal_dead',
 }

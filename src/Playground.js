@@ -1,5 +1,5 @@
 import { PlaygroundTagsMixin } from "./tuneup/mixins/PlaygroundTagsMixin";
-import { Vector3 } from "@babylonjs/core";
+import { Observable, Vector3 } from "@babylonjs/core";
 import { BOT_FACTORY } from "./tuneup/bots/bot_factory";
 import { PlaygroundBotBehaviorMixin } from "./tuneup/mixins/PlaygroundBotBehaviorMixin";
 import { CombatManager } from "./CombatManager";
@@ -7,6 +7,7 @@ import { CombatManager } from "./CombatManager";
 import { PlaygroundActionsMixin } from "./tuneup/mixins/PlaygroundActionsMixin";
 import { TEAM_SLOTS } from "./tuneup/teams_const";
 import { PlaygroundAttackAreaMixin } from "./tuneup/mixins/PlaygroundAttackAreaMixin";
+import { BEHAVIORS } from "./tuneup/common_const";
 
 
 export function Playground(world, options) {
@@ -35,6 +36,10 @@ export function Playground(world, options) {
     this.lastSelectedUnit = null;
     this.selectedUnits = new Set();
     this.isLoaded = false;
+
+    this.onUnitDestroyObservable = new Observable();
+    this.onUnitDamageObservable = new Observable();
+    this.onAfterUpdateObservable = new Observable();
 
     Object.assign(this, PlaygroundTagsMixin);
     Object.assign(this, PlaygroundBotBehaviorMixin);
@@ -74,35 +79,6 @@ Playground.prototype.customLogic = function(deltaTime){
     //Mast be overwrite
 }
 
-// Playground.prototype.update = function(deltaTime) {
-//     if(!deltaTime)
-//         deltaTime = this.app.engine.getDeltaTime() / 1000.0;
-//     this.customLogic(deltaTime);
-
-//     // if (!this.world.player || this.isLoaded === false) return;
-//     this.handleSpawnPoints?.(this.spawnPoints);
-
-//     // const target = this.world.player;
-//     // // bot.update();
-//     // this.combatManager.update(deltaTime);
-//     Object.values(this.playerTeam).forEach(unit => {
-//     if (unit) { 
-//         unit.update(deltaTime);
-//     }
-// });
-//     this.bots.forEach(bot => {
-//         if (bot.inCombat === false){
-//             if (bot.seesTarget(target.root.position)) {
-//                 this.combatManager.addBotToCombat(bot, target);
-//             } else {
-//                 bot.setBehavior(BEHAVIORS.IDLE);
-//             }
-//         }
-//         bot.update(deltaTime);
-//     });
-// };
-
-
 Playground.prototype.update = function(deltaTime) {
     if(!deltaTime)
         deltaTime = this.app.engine.getDeltaTime() / 1000.0;
@@ -125,7 +101,6 @@ Playground.prototype.update = function(deltaTime) {
             let minDistanceSq = Infinity;
             livingPlayerUnits.forEach(unit => {
                 const distanceSq = Vector3.DistanceSquared(bot.root.position, unit.root.position);
-                
                 if (distanceSq < minDistanceSq) {
                     minDistanceSq = distanceSq;
                     closestTarget = unit;
@@ -144,6 +119,7 @@ Playground.prototype.update = function(deltaTime) {
         }
         bot.update(deltaTime);
     });
+    this.onAfterUpdateObservable.notifyObservers(deltaTime);
 };
 
 
@@ -190,3 +166,18 @@ Playground.prototype.handleSpawnPoints = function(spawn_points){
         }
     });
 }
+
+Playground.prototype._findUnitByMesh = function(clickedMesh) {
+    if (!clickedMesh) return null;
+    let currentMesh = clickedMesh;
+    while (currentMesh) {
+        if (currentMesh.metadata && currentMesh.metadata.unit) {
+            return currentMesh.metadata.unit;
+        }
+        currentMesh = currentMesh.parent;
+        if (currentMesh === this.scene) {
+             break;
+        }
+    }
+    return null;
+};

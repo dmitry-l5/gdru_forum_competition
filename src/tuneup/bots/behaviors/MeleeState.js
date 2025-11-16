@@ -14,7 +14,6 @@ MeleeState.prototype.enter = function() {
     this.animator.play(ANIMATOR_STATE.ATTACK, { loop: true, 
         onEndCallback:()=>{
             console.warn('           attack            accept             demage');
-            
         },
         onLoopCallback:()=>{
             this.bot?.playgroundActionCallback( PLAYGROUND_ACTIONS.MELEE, {
@@ -23,9 +22,9 @@ MeleeState.prototype.enter = function() {
                 range:10,
                 damage:10,
                 excludedGroup:this.bot.group,
+                attacker:this.bot,
             });
             console.warn('           attack            LOOP             demage');
-            
         } }
     );
 };

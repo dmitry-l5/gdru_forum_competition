@@ -2,13 +2,21 @@ import { Playground } from "../Playground";
 import { TEAM_SLOTS } from "./teams_const";
 import { UNITS_META } from "./units/units_const";
 import { UnitFactory } from "./units/UnitFactory";
-import { BEHAVIORS } from "./common_const";
+import { BEHAVIORS, CHAR_GROUPS } from "./common_const";
 import { Vector3 } from "@babylonjs/core";
 import { BOT_FACTORY } from "./bots/bot_factory";
 import { UI_EVENTS } from "./ui/ui_const";
 
 export function PlaygroundTuner(world, options) {
     Playground.call(this, world, options); 
+
+    this.onUnitDestroyObservable.add(({unit})=>{
+        this.unitDestroyHandler(unit);
+    });
+    this.onUnitDamageObservable.add((options)=>{
+        this.unitDamageHandler(options);
+    });
+
 }
 
 PlaygroundTuner.prototype = Object.create(Playground.prototype);
@@ -22,9 +30,23 @@ PlaygroundTuner.prototype.customLogic = function(deltaTime){
     // this.handleSpawnPoints?.(this.spawnPoints);
 }
 Playground.prototype.handleClick = function(pickResult){
-    // debugger
     let unitsToMove;
     const clickPoint = pickResult?.pickedPoint;
+    const clickedMesh = pickResult?.pickedMesh;
+    const targetUnit = this._findUnitByMesh(clickedMesh);
+    if (targetUnit) {
+        console.log(`Клик по юниту: ${targetUnit.root.name}`);
+        if (this.selectedUnits && this.selectedUnits.size > 0) {
+             unitsToMove = Array.from(this.selectedUnits);
+             unitsToMove.forEach(unit => {
+                 unit.setTarget(targetUnit); 
+                 unit.setBehavior(BEHAVIORS.MELEE); 
+             });
+        } else {
+            // this.world.app.uiHandler(UI_EVENTS.HERO_TOGGLE_SELECT, {slot_id: targetUnit.slotId});
+        }
+        return; 
+    }
     if(this.selectedUnits && this.selectedUnits.size > 0){
         unitsToMove = Array.from(this.selectedUnits); 
     } else {
@@ -40,13 +62,15 @@ Playground.prototype.handleClick = function(pickResult){
             }
             const path = this.pathfinder.findPath(unit.root.position, targetPoint);
             
-            if (path && path.length > 0) {
-                unit.setPath(path);
-                unit.setBehavior(BEHAVIORS.FOLLOW_PATH); 
-                console.log(`Playground: Юниту ${unit.root.name} назначен путь с ${path.length} точками.`);
-            } else {
-                console.log(`Playground: Путь не найден для ${unit.root.name} до ${targetPoint}.`);
-                unit.stopMoving();
+            if (!unit.isDead) {
+                if ( path && path.length > 0) {
+                    unit.setPath(path);
+                    unit.setBehavior(BEHAVIORS.FOLLOW_PATH); 
+                    console.log(`Playground: Юниту ${unit.root.name} назначен путь с ${path.length} точками.`);
+                } else {
+                    console.log(`Playground: Путь не найден для ${unit.root.name} до ${targetPoint}.`);
+                    unit.stopMoving();
+                }
             }
         });
     }
@@ -79,6 +103,11 @@ PlaygroundTuner.prototype.spawnBot = async function(point) {
                 // projectileType: PROJECTILE_TYPE.DEFAULT
             });
             await bot.init();
+
+            delete bot.behaviors[BEHAVIORS.MELEE];
+            delete bot.behaviors[BEHAVIORS.FOLLOW_PATH];
+
+            bot.onDeathObservable = this.onUnitDestroyObservable;
             this.bots.push(bot);
             point.spawnedBot = bot;
 
@@ -143,10 +172,13 @@ PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}){
 
     results.forEach(({ slot_id, char, target_position }) => {
         char.root.position.copyFrom(target_position); 
+        char.group = CHAR_GROUPS.PLAYER;
+        char.onDeathObservable = this.onUnitDestroyObservable;
+        char.onDamageObservable = this.onUnitDamageObservable;
         this.playerTeam[slot_id] = char;
-        if (slot_id === TEAM_SLOTS.MAIN) {
-            this.world.player = char; 
-        }
+        // if (slot_id === TEAM_SLOTS.MAIN) {
+        //     this.world.player = char; 
+        // }
     });
     this.app.cameras.setTarget(this.playerTeam[TEAM_SLOTS.MAIN].root, true);
 
@@ -156,36 +188,6 @@ PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}){
         }
     });
 }
-
-// PlaygroundTuner.prototype.instantiatePlayerTeam = async function(options = {}) {
-//     const { gate = null } = options;
-//     const team_data = this.app.gameDataManager.team;
-//     const gate_position = this.gates[gate || meta_main.gates] ?? Vector3.Zero();
-//     const buildPromises = Object.entries(this.playerTeam)
-//         .map(([slot_id, unit_id]) => {
-//             if(team_data[slot_id]){
-
-//                 const metadata = UNITS_META[unit_id];
-                
-//                 return UnitFactory.build(
-//                     unit_id, 
-//                     { metadata, position: Vector3.Zero() }, 
-//                     this.resourceLoader, 
-//                     this.scene
-//                 ).then((char) => ({ slot_id, char }));
-//             }
-//             return null;
-//         });
-//     const results = await Promise.all(buildPromises);
-//     results.forEach(({ slot_id, char }) => {
-//         char.root.position.copyFrom(gate_position); 
-//         this.playerTeam[slot_id] = char;
-//         if (slot_id === TEAM_SLOTS.MAIN) {
-//             this.world.player = char; 
-//         }
-//     });
-// };
-
 
 PlaygroundTuner.prototype.handleTriggerAction = function(trigger) {
     switch(trigger.action) {
@@ -304,3 +306,36 @@ PlaygroundTuner.prototype._collectSelectedUnitData = function(){
     });
     return data;
 }
+
+PlaygroundTuner.prototype.unitDamageHandler = function(options) {
+    const {unit, attacker} = options;
+    if(unit && attacker){
+        // debugger
+        // this.onAfterUpdateObservable?.addOnce((deltaTime)=>{
+        //     if( ( !unit.target && !unit.isDead ) || unit.target?.isDead){
+        //         this.combatManager.addBotToCombat(unit, attacker);
+        //         unit.setBehavior(BEHAVIORS.MELEE);
+        //     }
+        // });
+    }
+}
+PlaygroundTuner.prototype.unitDestroyHandler = function(unit) {
+    console.log(`PlaygroundTuner: Обработка уничтожения юнита ${unit.root.name}`);
+    for (const slotId in this.playerTeam) {
+        if (this.playerTeam[slotId] === unit) {
+            delete this.playerTeam[slotId];
+            this.selectedUnits.delete(unit);
+            this._reloadTeamPanels();
+            // if (slotId === TEAM_SLOTS.MAIN) {
+            //     this.world.player = null;
+            // }
+            break;
+        }
+    }
+    const botIndex = this.bots.indexOf(unit);
+    if (botIndex > -1) {
+        this.bots.splice(botIndex, 1);
+    }
+    this.combatManager.removeBotFromCombat(unit);
+}
+

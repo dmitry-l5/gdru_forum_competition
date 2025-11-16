@@ -52,7 +52,7 @@ Pathfinder.prototype.findPath = function(startPoint, endPoint) {
     if (!this.navMeshPlugin || !this.navMeshPlugin.navMesh) {
         return null;
     }
-    const path = this.navMeshPlugin.computePath(startPoint, endPoint);
+    const path = this.navMeshPlugin.computePath(startPoint, this.navMeshPlugin.getClosestPoint(endPoint));
     if (path && path.length > 0) {
         return path;
     } else {
